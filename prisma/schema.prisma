@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  level     String
+  message   String
+  metadata  Json?
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        String                @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  subject   String?
+  message   String?
+  type      ContactSubmissionType
+  status    ContactReadStatus     @default(NEW)
+
+  // Availability
+  availabilityDays  String? // "Monday,Wednesday,Friday" or JSON
+  availabilityHours String? // "Morning" | "Afternoon" | "Evening" | "Flexible"
+
+  // Interest & Experience
+  programInterests String? // "KidsClub,TeenCenter,Sports" (comma-separated or JSON)
+  yearsExperience  Int? // Optional
+
+  // Legal/Info
+  backgroundCheckAck Boolean? // Confirm they understand requirement
+  additionalInfo     String? // Optional text field
+
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+}
+
+enum ContactReadStatus {
+  NEW
+  READ
+  ARCHIVED
+}
+
+enum ContactSubmissionType {
+  SUPPORT
+  PARTNER
+  SPONSOR
+  OTHER
+}
