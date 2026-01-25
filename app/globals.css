@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-primary-light: #fddd58;
+  --color-primary-dark: #c9f31f;
+
+  --color-secondary-light: #0082f3;
+  --color-secondary-dark: #11d1ff;
+
+  --color-border-light: #f0e6db;
+  --color-border-dark: #262525;
+
+  --color-bg-light: #ffffff;
+  --color-bg-dark: #1a1a1a;
+
+  --color-text-light: #000000;
+  --color-text-dark: #ffffff;
+
+  --breakpoint-1150: 1150px;
+
+  --max-width-container: 1350px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-lato: var(--font-lato);
   --font-lustria: var(--font-lustria);
+  --font-kanit: var(--font-kanit);
+}
+
+@utility font-caveat {
+  font-family: var(--font-caveat), cursive;
+}
+
+body {
+  font-family:
+    var(--font-lato),
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-gradient: var(--color-primary-light);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-gradient: var(--color-primary-dark);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.cls-1 {
+  fill: #e8e8e8;
+}
+
+.cls-1,
+.cls-2,
+.cls-3,
+.cls-4,
+.cls-5 {
+  stroke-width: 0px;
+}
+
+.cls-2 {
+  fill: #f5f5f5;
+}
+
+.cls-3 {
+  fill: #00d4ff;
+}
+
+.cls-4 {
+  fill: #fff;
+}
+
+.cls-5 {
+  fill: #c9f31f;
 }

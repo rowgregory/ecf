@@ -7,6 +7,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  role        Role
+  lastLoginAt DateTime?
+
+  // Generic person info (optional)
+  firstName String?
+  lastName  String?
+  phone     String?
+
+  emailVerified DateTime?
+
+  // Flexible user-specific data
+  metadata Json? // ← Future-proof
+
+  stripeCustomerId String?
+  paymentMethods   PaymentMethod[]
+  accounts         Account[]
+  sessions         Session[]
+  orders           Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PaymentMethod {
+  id              String @id @default(cuid())
+  stripePaymentId String @unique // stripe_pm_xxxxx
+
+  cardBrand    String // visa, mastercard, etc
+  cardLast4    String // 4242
+  cardExpMonth Int
+  cardExpYear  Int
+
+  isDefault Boolean @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Order details
+  type   OrderType
+  status OrderStatus @default(PENDING)
+
+  // Payment
+  totalAmount     Float // Total cost
+  paymentMethod   String? // "stripe", "paypal", "cash", etc.
+  paymentIntentId String? // Stripe payment intent ID
+  paidAt          DateTime? // When payment was completed
+
+  // Customer info (denormalized for easy access)
+  customerEmail String
+  customerName  String
+  customerPhone String?
+
+  // Billing info
+  billingAddress Json? // Store as JSON
+  coverFees      Boolean @default(false)
+  feesCovered    Int     @default(0) // Amount in cents
+
+  // User info (nullable - guest checkout allowed)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Payment method
+  paymentMethodId String? // stripe payment method ID used
+
+  // Recurring donation fields
+  stripeSubscriptionId String?   @unique // For recurring donations
+  isRecurring          Boolean   @default(false)
+  recurringFrequency   String? // "monthly", "yearly"
+  nextBillingDate      DateTime? // Next charge date
+
+  @@index([type])
+  @@index([status])
+  @@index([userId])
+  @@index([customerEmail])
+  @@index([createdAt])
+}
+
 model Log {
   id        String   @id @default(cuid())
   level     String
@@ -56,4 +181,23 @@ enum ContactSubmissionType {
   PARTNER
   SPONSOR
   OTHER
+}
+
+enum Role {
+  SUPERUSER
+  SUPPORTER
+}
+
+enum OrderType {
+  ONE_TIME_DONATION
+  RECURRING_DONATION
+}
+
+enum OrderStatus {
+  PENDING // Cart/checkout in progress
+  PROCESSING // Payment being processed
+  CONFIRMED // Payment successful
+  CANCELLED // Order cancelled
+  REFUNDED // Order refunded
+  FAILED // Payment failed
 }
