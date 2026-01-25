@@ -3,6 +3,8 @@
 import AnimatedTextFill from './hero/AnimatedTextFill'
 import PlayButton from './hero/PlayButton'
 import { motion } from 'framer-motion'
+import SocialSidebar from './hero/SocialSidebar'
+import ScrollDown from './hero/ScrollDown'
 
 export const Hero = () => {
   const containerVariants = {
@@ -41,6 +43,8 @@ export const Hero = () => {
       >
         <source src="/videos/ecf-hero.mp4" type="video/mp4" />
       </motion.video>
+      <ScrollDown />
+      <SocialSidebar />
 
       {/* Overlay Gradient */}
       <motion.div

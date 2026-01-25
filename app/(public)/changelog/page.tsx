@@ -22,6 +22,61 @@ interface ChangelogEntry {
 
 const changelogData: ChangelogEntry[] = [
   {
+    version: '1.5.2',
+    date: '2026-01-25',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Out of School Learning Section',
+        description:
+          'Added comprehensive section highlighting the importance of out-of-school learning with modern card-based benefits layout. Includes responsive grid design with glassmorphic styling and hover animations.',
+        impact: 'high'
+      },
+      {
+        type: 'feature',
+        title: 'Social Sidebar Navigation',
+        description:
+          'Implemented fixed social media sidebar for mobile/tablet (hidden on lg+). Features vertical "Follow Me" text with animated social icons (Facebook, Twitter, LinkedIn, Website, Instagram) and gradient line animation.',
+        impact: 'medium'
+      },
+      {
+        type: 'feature',
+        title: 'Custom Facebook SVG Icon',
+        description:
+          'Created custom Facebook SVG component with dark/light mode support. Accepts size, className, and strokeWidth props for flexible usage throughout the app.',
+        impact: 'low'
+      },
+      {
+        type: 'feature',
+        title: 'Sponsor Marquee with Custom Animation',
+        description:
+          'Built custom Framer Motion marquee component for 25 sponsors with integrated logo icons. Removes react-fast-marquee library dependency with smooth continuous scrolling and no gap issues.',
+        impact: 'medium'
+      },
+      {
+        type: 'feature',
+        title: 'Logo Icon Component',
+        description:
+          'Created small icon version of ECF logo with tassel and person figure. Responsive sizing (sm, md, lg).',
+        impact: 'low'
+      },
+      {
+        type: 'improvement',
+        title: 'Mobile Responsive to 330px',
+        description:
+          'Full responsive design across all new components down to 330px. Added base breakpoints for mobile, improved spacing, padding, and font scaling.',
+        impact: 'medium'
+      },
+      {
+        type: 'improvement',
+        title: 'Modern Card Design System',
+        description:
+          'Implemented glassmorphic card styling with backdrop blur, subtle borders, and smooth hover effects. Applied to benefits section for modern aesthetic.',
+        impact: 'low'
+      }
+    ]
+  },
+  {
     version: '0.1.1',
     date: '2026-01-25',
     changes: [
