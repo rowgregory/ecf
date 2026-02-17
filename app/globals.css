@@ -1,10 +1,13 @@
 @import "tailwindcss";
 
 @theme {
+  --color-accent: #fcf7f2;
+  --color-accent-dark: #131411;
+
   --color-primary-light: #fddd58;
   --color-primary-dark: #c9f31f;
 
-  --color-secondary-light: #0082f3;
+  --color-secondary-light: #00a2d1;
   --color-secondary-dark: #11d1ff;
 
   --color-border-light: #f0e6db;
@@ -23,7 +26,7 @@
 
 @theme inline {
   --font-lato: var(--font-lato);
-  --font-lustria: var(--font-lustria);
+  --font-kanit: var(--font-kanit);
   --font-kanit: var(--font-kanit);
 }
 
@@ -77,4 +80,37 @@ body {
 
 .cls-5 {
   fill: #c9f31f;
+}
+
+.cls-6 {
+  fill: #10a8e0;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
+}
+
+.sqysh-gradient {
+  background: linear-gradient(
+    90deg,
+    #fddd58,
+    /* primary-light */ #c9f31f,
+    /* primary-dark */ #00a2d1,
+    /* secondary-light */ #11d1ff,
+    /* secondary-dark */ #fddd58 /* primary-light */
+  );
+  background-size: 300% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradient 4s linear infinite;
+}
+
+.group:hover .sqysh-gradient {
+  animation-duration: 1.5s;
 }

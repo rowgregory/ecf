@@ -45,7 +45,7 @@ export default function SocialSidebar() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        Follow Me
+        Follow Us
       </motion.div>
 
       <motion.div

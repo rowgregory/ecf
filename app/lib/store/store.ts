@@ -5,9 +5,13 @@ import { configureStore } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { api } from './api'
 import { uiReducer } from './slices/uiSlice'
+import { formReducer } from './slices/formSlice'
+import { toastReducer } from './slices/toastSlice'
 
 const rootReducer = combineReducers({
   ui: uiReducer,
+  form: formReducer,
+  toast: toastReducer,
   [api.reducerPath]: api.reducer
 })
 
@@ -29,3 +33,5 @@ export const useAppDispatch: () => AppDispatch = useDispatch
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 export const useUiSelector = () => useAppSelector((state) => state.ui)
+export const useFormSelector = () => useAppSelector((state) => state.form)
+export const useToastReducer = () => useAppSelector((state) => state.toast)

@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'
 import Picture from './common/Picture'
-import LogoIcon from '@/public/svg/LogoIcon'
+import LogoIconLight from '@/public/svg/LogoIconLight'
+import LogoIconDark from '@/public/svg/LogoIconDark'
 
 const sponsorImages = [
   '/images/sponsor-1.png',
@@ -73,7 +74,8 @@ export default function MarqueeSponsors({ sponsors = sponsorImages }: MarqueeSpo
               height={100}
             />
             <div className="w-6 sm:w-8 md:w-10 shrink-0">
-              <LogoIcon />
+              <LogoIconLight />
+              <LogoIconDark />
             </div>
           </motion.div>
         ))}

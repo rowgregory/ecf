@@ -16,14 +16,13 @@ const Picture: FC<PictureProps> = ({ src, alt, className, priority = false, onCl
     <Image
       onClick={onClick}
       src={src || '/images/'}
-      alt={alt || 'Boys & Girls Club of Lynn'}
+      alt={alt || 'Education Comes First'}
       width={width || 1}
       height={height || 1}
       className={className}
       priority={priority}
       loading={priority ? 'eager' : 'lazy'}
-      sizes="100vw"
-      unoptimized
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
     />
   )
 }

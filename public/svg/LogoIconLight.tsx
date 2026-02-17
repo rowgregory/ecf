@@ -1,6 +1,6 @@
-const LogoIcon = () => {
+const LogoIconLight = () => {
   return (
-    <svg id="ECF-Icon" xmlns="http://www.w3.org/2000/svg" viewBox="15 5 65 65">
+    <svg id="ECF-Icon" xmlns="http://www.w3.org/2000/svg" viewBox="15 5 65 75" className="block dark:hidden">
       <defs>
         <style>
           {`
@@ -19,8 +19,8 @@ const LogoIcon = () => {
         </style>
       </defs>
 
-      <g className="">
-        <circle className="cls-3" cx="46.7" cy="23.45" r="7.36" />
+      <g>
+        <circle className="cls-6" cx="46.7" cy="23.45" r="7.36" />
         <path
           className="cls-4"
           d="m52.61,23.61c-.03,2.52-1.36,5.18-3.86,6.06-2.35.83-4.99-.35-6.49-2.25-1.67-2.11-1.95-5.18-.63-7.53,1.19-2.11,3.38-3.35,5.79-2.82,2.99.66,5.14,3.5,5.18,6.53,0,.65.73.74,1.27.68.43-.05,1.65-.39,1.64-1.02-.05-3.48-2.17-6.47-5.48-7.6-3.48-1.18-7.68-.06-10.1,2.71s-2.7,6.4-.9,9.41,5.64,4.35,9.09,3.69c3.98-.77,7.34-4.02,7.39-8.21.02-1.26-2.89-.68-2.9.34Z"
@@ -28,7 +28,7 @@ const LogoIcon = () => {
       </g>
       <g>
         <path
-          className="cls-3"
+          className="cls-6"
           d="m31.88,15.76s-10.74,33.82,18.53,57.89c0,0-8.18-24.07,27.17-51.54,0,0-23.36,7.87-33.17,21.33,0,0-12.28-9.65-12.54-27.67Z"
         />
         <path
@@ -40,4 +40,4 @@ const LogoIcon = () => {
   )
 }
 
-export default LogoIcon
+export default LogoIconLight

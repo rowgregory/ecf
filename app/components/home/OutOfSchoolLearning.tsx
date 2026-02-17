@@ -67,7 +67,7 @@ export default function OutOfSchoolLearning() {
           >
             <motion.h2
               variants={itemVariants}
-              className="text-4xl sm:text-5xl md:text-6xl font-black text-text-light dark:text-text-dark mb-6 md:mb-8 leading-tight"
+              className="text-4xl sm:text-5xl md:text-6xl font-black text-text-light dark:text-text-dark mb-6 md:mb-8 leading-tight font-kanit"
             >
               Out of School Learning Matters
             </motion.h2>

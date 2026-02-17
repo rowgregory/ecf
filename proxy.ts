@@ -1,0 +1,81 @@
+import { NextResponse } from 'next/server'
+import { auth } from './app/lib/auth'
+
+const URL_REDIRECTS: Record<string, string> = {
+  '/about-education-comes-first': '/about'
+}
+
+export async function proxy(request: { nextUrl: { pathname: string }; url: string | URL | undefined }) {
+  const { pathname } = request.nextUrl
+  const session = await auth()
+
+  // Handle URL redirects first (before any other logic)
+  if (URL_REDIRECTS[pathname]) {
+    return NextResponse.redirect(
+      new URL(URL_REDIRECTS[pathname], request.url),
+      { status: 301 } // Permanent redirect for SEO
+    )
+  }
+
+  // If authenticated and on login page, redirect to appropriate dashboard
+  if (pathname === '/auth/login' && session?.user) {
+    const { role } = session.user
+
+    if (role === 'ADMIN' || role === 'SUPERUSER') {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    }
+
+    // SUPPORTER role
+    return NextResponse.redirect(new URL('/supporter/overview', request.url))
+  }
+
+  // Protected routes - require authentication
+  const protectedRoutes = ['/supporter/', '/admin/']
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route))
+
+  if (isProtectedRoute) {
+    // Redirect unauthenticated users to login
+    if (!session?.user) {
+      return NextResponse.redirect(new URL('/auth/login', request.url))
+    }
+
+    const { role } = session.user
+
+    // Helper function to redirect to correct dashboard
+    const redirectToDashboard = (userRole: string) => {
+      if (userRole === 'ADMIN' || userRole === 'SUPERUSER') {
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+      }
+      return NextResponse.redirect(new URL('/supporter/overview', request.url))
+    }
+
+    // ADMIN/SUPERUSER access control
+    if (pathname.startsWith('/admin/')) {
+      if (role !== 'ADMIN' && role !== 'SUPERUSER') {
+        return redirectToDashboard(role)
+      }
+      // Admin/Superuser can access admin routes - allow
+      return NextResponse.next()
+    }
+
+    // SUPPORTER access control - everyone can access /supporter/overview
+    if (pathname.startsWith('/supporter/')) {
+      // Allow all authenticated roles to access supporter routes
+      return NextResponse.next()
+    }
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: [
+    '/supporter/:path*',
+    '/admin/:path*',
+    '/program/:path*',
+    '/auth/login',
+
+    // Add old URL paths to the matcher so middleware checks them
+    '/about-education-comes-first'
+  ]
+}

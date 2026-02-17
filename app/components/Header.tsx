@@ -19,13 +19,13 @@ const Header = () => {
   ]
 
   return (
-    <header className="py-3 sm:py-4 md:py-5 px-3 sm:px-4 md:px-6 border-b border-b-border-light dark:border-b-border-dark xl:before:absolute xl:before:left-68 xl:before:top-0 xl:before:w-px xl:before:h-[102.31px] xl:before:content-[''] xl:before:bg-border-light  xl:after:absolute xl:after:right-70 xl:after:top-0 xl:after:w-px xl:after:h-[102.31px] xl:after:content-[''] xl:after:bg-border-light xl:dark:before:absolute xl:dark:before:left-68 xl:dark:before:top-0 xl:dark:before:w-px xl:dark:before:h-[102.31px] xl:dark:before:content-[''] xl:dark:before:bg-border-dark  xl:dark:after:absolute xl:dark:after:right-70 xl:dark:after:top-0 xl:dark:after:w-px xl:dark:after:h-[102.31px] xl:dark:after:content-[''] xl:dark:after:bg-border-dark">
+    <header className="bg-accent dark:bg-black sticky top-0 z-20 py-3 sm:py-4 md:py-5 px-3 sm:px-4 md:px-6 border-b border-b-border-light dark:border-b-border-dark xl:before:absolute xl:before:left-68 xl:before:top-0 xl:before:w-px xl:before:h-[102.31px] xl:before:content-[''] xl:before:bg-border-light  xl:after:absolute xl:after:right-70 xl:after:top-0 xl:after:w-px xl:after:h-[102.31px] xl:after:content-[''] xl:after:bg-border-light xl:dark:before:absolute xl:dark:before:left-68 xl:dark:before:top-0 xl:dark:before:w-px xl:dark:before:h-[102.31px] xl:dark:before:content-[''] xl:dark:before:bg-border-dark  xl:dark:after:absolute xl:dark:after:right-70 xl:dark:after:top-0 xl:dark:after:w-px xl:dark:after:h-[102.31px] xl:dark:after:content-[''] xl:dark:after:bg-border-dark">
       <div className="flex items-center justify-between gap-2 sm:gap-3 md:gap-4">
         <Link href="/" className="">
           <div className="w-32 sm:w-40 md:w-48 lg:w-52">
             <Picture
               src="/svg/logo-horizontal-light.svg"
-              alt="Boys & Girls Club"
+              alt="Education Comes First"
               className="dark:hidden block w-full h-full cursor-pointer hover:opacity-80 transition-opacity"
               priority={true}
             />
@@ -52,7 +52,7 @@ const Header = () => {
         </nav>
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           <Link
-            href="/contact"
+            href="/donate"
             className={`hidden sm:flex w-fit px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-[5px] text-neutral-950 shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center gap-2 font-kanit text-sm md:text-lg cursor-pointer bg-primary-light dark:bg-primary-dark hover:opacity-90`}
           >
             Donate

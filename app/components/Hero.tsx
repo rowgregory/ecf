@@ -1,10 +1,10 @@
 'use client'
 
-import AnimatedTextFill from './hero/AnimatedTextFill'
-import PlayButton from './hero/PlayButton'
+import AnimatedTextFill from './home/hero/AnimatedTextFill'
+import PlayButton from './home/hero/PlayButton'
 import { motion } from 'framer-motion'
-import SocialSidebar from './hero/SocialSidebar'
-import ScrollDown from './hero/ScrollDown'
+import SocialSidebar from './home/hero/SocialSidebar'
+import ScrollDown from './home/hero/ScrollDown'
 
 export const Hero = () => {
   const containerVariants = {
