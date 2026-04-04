@@ -9,6 +9,7 @@ import { store, useUiSelector } from '@/app/lib/store/store'
 import { setCloseAdminSidebar, setToggleAdminSidebar } from '@/app/lib/store/slices/uiSlice'
 import { motion } from 'framer-motion'
 import { Menu } from 'lucide-react'
+import CreateAdminModal from '../modals/CreateAdminModal'
 
 export const AdminLayoutClient: FC<{
   children: ReactNode
@@ -20,12 +21,15 @@ export const AdminLayoutClient: FC<{
   return (
     <>
       <ActionMenuDropdown />
+      <CreateAdminModal />
 
       {/* Desktop Fixed Header */}
-      <header className="hidden lg:block fixed top-0 left-64 right-0 dark:bg-neutral-950 dark:border-neutral-800 bg-white border-neutral-200 border-b py-2.5 px-6 z-30 h-15.25">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold dark:text-neutral-100 text-neutral-900 capitalize">Admin</h1>
-          <div className="flex items-center space-x-2 md:space-x-4 h-full">
+      <header className="hidden lg:block fixed top-0 left-64 right-0 bg-bg-light dark:bg-bg-dark border-b border-border-subtle dark:border-border-dark py-2.5 px-6 z-30 h-15.25">
+        <div className="flex items-center justify-between h-full">
+          <h1 className="font-mono text-xs font-bold tracking-[0.15em] uppercase text-text-light dark:text-text-dark">
+            Admin
+          </h1>
+          <div className="flex items-center gap-2 md:gap-4 h-full">
             <ActionMenuButton />
             <MobileMenuButton />
             <LogoutButton />
@@ -33,7 +37,7 @@ export const AdminLayoutClient: FC<{
         </div>
       </header>
 
-      <div className="min-h-screen dark:bg-neutral-950 bg-white flex">
+      <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex">
         {/* Mobile Sidebar Overlay */}
         {adminSidebar && (
           <motion.div
@@ -41,7 +45,7 @@ export const AdminLayoutClient: FC<{
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 dark:bg-black/50 bg-black/30 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/30 dark:bg-black/50 z-40 lg:hidden"
           />
         )}
 
@@ -61,17 +65,17 @@ export const AdminLayoutClient: FC<{
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto flex flex-col lg:ml-64 lg:mt-15">
           {/* Mobile Header */}
-          <div className="lg:hidden flex items-center justify-between dark:bg-neutral-900 dark:border-neutral-800 bg-neutral-50 border-neutral-200 border-b px-4 py-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <div className="lg:hidden flex items-center justify-between bg-bg-light dark:bg-bg-dark border-b border-border-subtle dark:border-border-dark px-4 py-4">
+            <button
               onClick={() => store.dispatch(setToggleAdminSidebar(adminSidebar))}
-              className="p-2 dark:hover:bg-neutral-950 hover:bg-neutral-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-accent dark:hover:bg-accent-dark transition-colors"
             >
-              <Menu className="w-6 h-6 dark:text-white text-neutral-900" />
-            </motion.button>
-            <h1 className="text-lg font-bold dark:text-white text-neutral-900 capitalize">Admin</h1>
-            <div className="w-10" />
+              <Menu className="w-5 h-5 text-text-light dark:text-text-dark" />
+            </button>
+            <h1 className="font-mono text-xs font-bold tracking-[0.15em] uppercase text-text-light dark:text-text-dark">
+              Admin
+            </h1>
+            <div className="w-9" />
           </div>
 
           {/* Content */}

@@ -7,7 +7,6 @@ import {
   CreditCard,
   Heart,
   Zap,
-  LogOut,
   CalendarClock,
   User,
   Pencil,
@@ -15,8 +14,7 @@ import {
   Trash2,
   Plus,
   Loader2,
-  ArrowRight,
-  LayoutDashboard
+  ArrowRight
 } from 'lucide-react'
 import { fadeUp } from '@/app/lib/constants/motion'
 import { IPaymentMethod } from '@/types/entities/payment-method'
@@ -24,7 +22,6 @@ import { ModalShell, ModalType } from '../common/ModalShell'
 import { AddCardForm } from '../forms/AddCardForm'
 import { GhostButton } from '../ui/buttons/GhostButton'
 import { PrimaryButtonStyles, PrimaryLink } from '../ui/buttons/PrimaryLink'
-import { signOut, useSession } from 'next-auth/react'
 import { deletePaymentMethod } from '@/app/lib/actions/deletePaymentMethod'
 import { store } from '@/app/lib/store/store'
 import { showToast } from '@/app/lib/store/slices/toastSlice'
@@ -32,6 +29,7 @@ import { useRouter } from 'next/navigation'
 import { GhostLink } from '../ui/buttons/GhostLink'
 import { formatDate } from '@/app/lib/utils/date.utils'
 import { updateUserName } from '@/app/lib/actions/updateUserName'
+import { MemberPortalHeader } from '../member/MemberPortalHeader'
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 export interface ISupporterOverviewClient {
@@ -160,8 +158,6 @@ function StatusPill({ status }: { status: string }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function MemberPortalClient({ name, data, savedCards }: ISupporterOverviewClient) {
   const router = useRouter()
-  const session = useSession()
-  const role = session.data?.user?.role
   const [modal, setModal] = useState<ModalType>(null)
   const [editing, setEditing] = useState(false)
   const [firstName, setFirstName] = useState(name?.firstName ?? '')
@@ -235,40 +231,7 @@ export default function MemberPortalClient({ name, data, savedCards }: ISupporte
       </ModalShell>
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 border-b border-border-subtle dark:border-border-dark bg-bg-light/90 dark:bg-bg-dark/90 backdrop-blur-md transition-colors duration-300">
-        <div className="max-w-container mx-auto px-4 xs:px-6 h-14 flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            aria-label="Education Comes First — home"
-            className="shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark"
-          >
-            <span className="font-mono text-[11px] font-bold tracking-[0.15em] uppercase text-text-light dark:text-text-dark">
-              Education<span className="text-secondary-light dark:text-secondary-dark"> Comes First</span>
-            </span>
-          </Link>
-
-          <div className="flex items-center gap-2">
-            {(role === 'ADMIN' || role === 'SUPERUSER') && (
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-[10px] font-bold tracking-widest uppercase bg-primary-light dark:bg-primary-dark text-black hover:opacity-85 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark min-h-9"
-              >
-                <LayoutDashboard size={13} aria-hidden="true" />
-                <span className="hidden xs:inline">Dashboard</span>
-              </Link>
-            )}
-
-            <button
-              onClick={() => signOut({ redirectTo: '/auth/login' })}
-              aria-label="Sign out"
-              className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-[10px] font-bold tracking-widest uppercase border border-border-subtle dark:border-border-dark text-text-light/50 dark:text-text-dark/40 hover:text-text-light dark:hover:text-text-dark transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark min-h-9"
-            >
-              <LogOut size={13} aria-hidden="true" />
-              <span className="hidden xs:inline">Sign out</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <MemberPortalHeader />
 
       {/* ── Body ───────────────────────────────────────────────────────────── */}
       <div className="max-w-container mx-auto px-4 xs:px-6">

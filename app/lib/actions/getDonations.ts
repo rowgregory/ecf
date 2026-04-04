@@ -2,7 +2,7 @@
 
 import prisma from '@/prisma/client'
 import { createLog } from './createLog'
-import { IBillingAddress, RecurringFrequency } from '@/types/entities/order'
+import { RecurringFrequency } from '@/types/entities/order'
 
 export const getDonations = async () => {
   try {
@@ -19,7 +19,6 @@ export const getDonations = async () => {
 
     return donations.map((donation) => ({
       ...donation,
-      billingAddress: donation.billingAddress as IBillingAddress | null,
       recurringFrequency: donation.recurringFrequency as RecurringFrequency | null
     }))
   } catch (error) {

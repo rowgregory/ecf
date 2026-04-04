@@ -1,60 +1,50 @@
 'use client'
 
 import { ExternalLink } from 'lucide-react'
-import { motion } from 'framer-motion'
-// import { useSession } from 'next-auth/react'
 
 export default function GoogleSearchConsoleCard() {
-  // const { data: session } = useSession()
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
-      className="dark:bg-neutral-900 bg-white border dark:border-neutral-800 border-neutral-200 rounded-xl p-6 flex flex-col justify-between"
-    >
-      <div>
-        {/* Header */}
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div>
-              <h3 className="text-lg font-semibold dark:text-white text-neutral-900">Google Search Console</h3>
-              <p className="text-sm dark:text-neutral-400 text-neutral-600">Search Performance & Site Health</p>
-            </div>
-          </div>
-        </div>
+    <div className="bg-bg-light dark:bg-bg-dark border border-border-subtle dark:border-border-dark p-6 flex flex-col justify-between">
+      {/* Header */}
+      <div className="mb-6 pb-6 border-b border-border-subtle dark:border-border-dark">
+        <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-1">
+          {`// search`}
+        </p>
+        <h3 className="font-mono text-sm font-bold text-text-light dark:text-text-dark">Google Search Console</h3>
+        <p className="font-mono text-[10px] text-text-light/40 dark:text-text-dark/35 mt-0.5">
+          Search Performance & Site Health
+        </p>
+      </div>
 
-        {/* Access Info */}
-        <div className="mb-6 flex-1">
-          <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-lg">
-            <label className="text-xs font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-2 block">
-              Your Access Email
-            </label>
-            {/* <code className="text-sm text-neutral-900 dark:text-neutral-200 font-mono break-all">
-              {session?.user?.email}
-            </code> */}
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
-              You have access to this property via your Google account
-            </p>
-          </div>
+      {/* Access Info */}
+      <div className="flex-1 mb-6">
+        <div className="p-4 bg-accent dark:bg-accent-dark border border-border-subtle dark:border-border-dark">
+          <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-text-light/35 dark:text-text-dark/30 mb-2">
+            Your Access Email
+          </p>
+          <code className="font-mono text-xs text-text-light dark:text-text-dark break-all">dev.educf@gmail.com</code>
+          <p className="font-mono text-[10px] text-text-light/40 dark:text-text-dark/35 mt-1">
+            You have access to this property via your Google account
+          </p>
         </div>
       </div>
-      {/* Action Button */}
+
+      {/* Action */}
+
       <a
         href="https://search.google.com/search-console?resource_id=https://www.bgcl.org"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-auto w-full flex items-center justify-center gap-2 px-4 py-3 bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all shadow-lg shadow-green-500/20"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#1a73e8] text-white font-mono text-xs font-medium hover:opacity-85 transition-opacity"
       >
         Open Search Console
-        <ExternalLink className="w-4 h-4" />
+        <ExternalLink className="w-3.5 h-3.5" />
       </a>
 
-      {/* Footer Note */}
-      <p className="text-xs text-neutral-500 dark:text-neutral-500 text-center mt-4">
-        Monitor search performance, indexing, and site health
+      {/* Footer */}
+      <p className="font-mono text-[10px] text-text-light/30 dark:text-text-dark/25 text-center mt-4">
+        {`// monitor search performance, indexing, and site health`}
       </p>
-    </motion.div>
+    </div>
   )
 }

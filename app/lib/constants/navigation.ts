@@ -34,7 +34,7 @@ export const adminNavigationLinkData = (path: string, isSuperUser: boolean): IAd
     {
       icon: Gift,
       label: 'Donations',
-      path: '/admin/donations/overview',
+      path: '/admin/donations',
       description: 'Manage stripe transactions',
       active: isStringInPath(path, 'donations')
     },

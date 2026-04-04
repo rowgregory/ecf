@@ -8,7 +8,6 @@ import { DonateCheckoutForm } from '@/app/components/forms/DonationForm'
 import { useSession } from 'next-auth/react'
 import { store, useFormSelector } from '@/app/lib/store/store'
 import { createFormActions, setInputs } from '@/app/lib/store/slices/formSlice'
-import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { updateUserName } from '@/app/lib/actions/updateUserName'
 import { CheckoutStepIndicator } from '../common/CheckoutStepIndicator'
@@ -37,10 +36,7 @@ export default function DonateCheckoutClient({ savedCards, name }: any) {
   const errors = forms?.donateCheckoutForm?.errors
 
   // ── UI state ─────────────────────────────────────────────────────────────────
-  const params = useSearchParams()
-  const stepFromUrl = Number(params.get('step'))
   const [step, setStep] = useState(() => {
-    if (stepFromUrl && stepFromUrl > 0) return stepFromUrl
     if (!isAuthed) return 1
     if (hasUserInfo) return 3
     return 2
@@ -143,7 +139,7 @@ export default function DonateCheckoutClient({ savedCards, name }: any) {
             />
 
             {/* Sign In */}
-            {step === 1 && <CheckoutStep1 redirectTo="/donate?step=2" />}
+            {step === 1 && <CheckoutStep1 redirectTo="/donate" />}
 
             {/* User Info */}
             {step === 2 && (

@@ -20,8 +20,6 @@ export const getOrder = async (id: string): Promise<IOrder | null> => {
       orderId: id,
       error: message,
       timestamp: new Date().toISOString()
-    }).catch((logError) => {
-      console.error('Failed to create error log:', logError)
     })
 
     throw new Error(`Failed to fetch order: ${message}`)

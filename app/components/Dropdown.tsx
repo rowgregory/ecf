@@ -52,25 +52,18 @@ export default function Dropdown({ trigger, items, isActive }: DropdownProps) {
             className="absolute top-full left-0 mt-2 min-w-48 bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark overflow-hidden z-50"
           >
             {items.map((item, index) => (
-              <motion.div
+              <Link
                 key={index}
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2, delay: index * 0.05, ease: 'easeOut' }}
+                href={item.linkKey}
+                onClick={() => setIsOpen(false)}
+                className={`block px-4 py-3 font-mono text-xs transition-colors duration-150 border-b border-border-light dark:border-border-dark last:border-b-0 ${
+                  item.isActive
+                    ? 'bg-primary-light dark:bg-primary-dark text-black'
+                    : 'text-text-light dark:text-text-dark hover:bg-accent dark:hover:bg-accent-dark'
+                }`}
               >
-                <Link
-                  href={item.linkKey}
-                  onClick={() => setIsOpen(false)}
-                  className={`block px-4 py-3 font-mono text-xs transition-colors duration-150 border-b border-border-light dark:border-border-dark last:border-b-0 ${
-                    item.isActive
-                      ? 'bg-primary-light dark:bg-primary-dark text-black'
-                      : 'text-text-light dark:text-text-dark hover:bg-accent dark:hover:bg-accent-dark'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              </motion.div>
+                {item.label}
+              </Link>
             ))}
           </motion.div>
         )}

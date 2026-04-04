@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialContactSubmissionFormState } from '../../constants/initial-state/contact-submission'
 import { initialPaymentMethodFormState } from '../../constants/initial-state/payment-method'
+import { initialCreateAdminFormState } from '../../constants/initial-state/create-admin'
 
 // 1. Better type definitions
 export type Inputs = Record<string, string | number | boolean | any>
@@ -10,7 +11,8 @@ export type Errors = Record<string, string>
 export const FORM_REGISTRY = {
   contactSubmissionForm: initialContactSubmissionFormState,
   paymentMethodForm: initialPaymentMethodFormState,
-  donateCheckoutForm: {}
+  donateCheckoutForm: {},
+  createAdminForm: initialCreateAdminFormState
 } as const
 
 export type FormName = keyof typeof FORM_REGISTRY

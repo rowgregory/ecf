@@ -2,32 +2,41 @@
 
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Mail, ChevronDown, ChevronUp } from 'lucide-react'
-import { IContactSubmission } from '@/types/entities/contact-submission'
-import { formatDate } from '@/app/lib/utils/date.utils'
+import { Search, ChevronDown, ChevronUp } from 'lucide-react'
+import { TLog } from '@/types/entities/log'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type SortField = 'createdAt' | 'firstName' | 'type'
+type SortField = 'createdAt' | 'level' | 'message'
 type SortDir = 'asc' | 'desc'
-type TabType = 'ALL' | 'SUPPORT' | 'PARTNER' | 'SPONSOR' | 'OTHER'
+type TabLevel = 'ALL' | 'info' | 'warn' | 'error' | 'debug'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const statusClass: Record<string, string> = {
-  NEW: 'text-secondary-light dark:text-secondary-dark',
-  READ: 'text-text-light/40 dark:text-text-dark/35',
-  ARCHIVED: 'text-text-light/25 dark:text-text-dark/20'
+const fmtDateTime = (d: Date | string) =>
+  new Date(d).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+
+const levelClass: Record<string, string> = {
+  info: 'text-secondary-light dark:text-secondary-dark',
+  warn: 'text-yellow-600 dark:text-yellow-400',
+  error: 'text-red-600 dark:text-red-400',
+  debug: 'text-text-light/40 dark:text-text-dark/35'
 }
 
-const typeClass: Record<string, string> = {
-  SUPPORT: 'text-yellow-700 dark:text-yellow-400',
-  PARTNER: 'text-green-700 dark:text-green-400',
-  SPONSOR: 'text-primary-light dark:text-primary-dark',
-  OTHER: 'text-text-light/50 dark:text-text-dark/40'
+const levelDotClass: Record<string, string> = {
+  info: 'bg-secondary-light dark:bg-secondary-dark',
+  warn: 'bg-yellow-500 dark:bg-yellow-400',
+  error: 'bg-red-500 dark:bg-red-400',
+  debug: 'bg-text-light/20 dark:bg-text-dark/20'
 }
 
-const TABS: TabType[] = ['ALL', 'SUPPORT', 'PARTNER', 'SPONSOR', 'OTHER']
+const TABS: TabLevel[] = ['ALL', 'info', 'warn', 'error', 'debug']
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
@@ -41,64 +50,60 @@ const StatCard = ({ label, value, sub }: { label: string; value: string; sub?: s
   </div>
 )
 
-// ─── Expanded Row ─────────────────────────────────────────────────────────────
+// ─── Row ─────────────────────────────────────────────────────────────────────
 
-const SubmissionRow = ({ submission }: { submission: IContactSubmission }) => {
+const LogRow = ({ log }: { log: TLog }) => {
   const [expanded, setExpanded] = useState(false)
+  const hasMetadata = log.metadata && Object.keys(log.metadata).length > 0
 
   return (
     <>
       <motion.tr
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="border-b border-border-subtle dark:border-border-dark hover:bg-accent dark:hover:bg-accent-dark transition-colors duration-100 cursor-pointer group"
-        onClick={() => setExpanded((v) => !v)}
+        className={`border-b border-border-subtle dark:border-border-dark transition-colors duration-100 ${
+          hasMetadata ? 'cursor-pointer hover:bg-accent dark:hover:bg-accent-dark' : ''
+        }`}
+        onClick={() => hasMetadata && setExpanded((v) => !v)}
       >
         <td className="px-4 py-3">
-          <p className="font-mono text-xs text-text-light dark:text-text-dark">
-            {submission.firstName} {submission.lastName}
-          </p>
-          <p className="font-mono text-[10px] text-text-light/40 dark:text-text-dark/35">{submission.email}</p>
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${levelDotClass[log.level] ?? 'bg-text-light/20'}`} />
+            <span
+              className={`font-mono text-[10px] uppercase tracking-wider ${levelClass[log.level] ?? 'text-text-light/50'}`}
+            >
+              {log.level}
+            </span>
+          </div>
         </td>
-        <td className="px-4 py-3 font-mono text-[10px] uppercase tracking-wider">
-          <span className={typeClass[submission.type] ?? 'text-text-light/50'}>{submission.type.toLowerCase()}</span>
-        </td>
-        <td className="px-4 py-3 font-mono text-[10px] uppercase tracking-wider">
-          <span className={statusClass[submission.status] ?? 'text-text-light/50'}>
-            {submission.status.toLowerCase()}
-          </span>
-        </td>
-        <td className="px-4 py-3 font-mono text-[10px] text-text-light/40 dark:text-text-dark/35 max-w-xs truncate">
-          {submission.message}
+        <td className="px-4 py-3 font-mono text-xs text-text-light/80 dark:text-text-dark/70 max-w-sm">
+          <p className="truncate">{log.message}</p>
         </td>
         <td className="px-4 py-3 font-mono text-[10px] text-text-light/40 dark:text-text-dark/35">
-          {formatDate(submission.createdAt ?? '')}
+          {log.userId ?? '—'}
+        </td>
+        <td className="px-4 py-3 font-mono text-[10px] text-text-light/40 dark:text-text-dark/35 whitespace-nowrap">
+          {fmtDateTime(log.createdAt)}
         </td>
         <td className="px-4 py-3">
-          <div className="text-text-light/30 dark:text-text-dark/25 group-hover:text-text-light dark:group-hover:text-text-dark transition-colors">
-            {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </div>
+          {hasMetadata && (
+            <div className="text-text-light/30 dark:text-text-dark/25">
+              {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </div>
+          )}
         </td>
       </motion.tr>
 
-      {/* Expanded message */}
-      {expanded && (
+      {/* Expanded metadata */}
+      {expanded && hasMetadata && (
         <tr className="border-b border-border-subtle dark:border-border-dark bg-accent dark:bg-accent-dark">
-          <td colSpan={6} className="px-4 py-4">
+          <td colSpan={5} className="px-4 py-4">
             <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-text-light/30 dark:text-text-dark/25 mb-2">
-              {`// message`}
+              {`// metadata`}
             </p>
-            <p className="font-mono text-xs text-text-light/70 dark:text-text-dark/60 leading-relaxed max-w-2xl">
-              {submission.message}
-            </p>
-
-            <a
-              href={`mailto:${submission.email}`}
-              className="inline-flex items-center gap-1.5 mt-4 font-mono text-[10px] text-secondary-light dark:text-secondary-dark hover:opacity-75 transition-opacity"
-            >
-              <Mail className="w-3 h-3" />
-              Reply to {submission.email}
-            </a>
+            <pre className="font-mono text-[10px] text-text-light/60 dark:text-text-dark/50 leading-relaxed overflow-x-auto">
+              {JSON.stringify(log.metadata, null, 2)}
+            </pre>
           </td>
         </tr>
       )}
@@ -106,36 +111,36 @@ const SubmissionRow = ({ submission }: { submission: IContactSubmission }) => {
   )
 }
 
+const RECENT_HOURS = 24
+
+function getRecentCount(logs: TLog[]) {
+  const now = Date.now()
+  return logs.filter((l) => (now - new Date(l.createdAt).getTime()) / (1000 * 60 * 60) <= RECENT_HOURS).length
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function AdminContactSubmissionsPage({ submissions }: { submissions: IContactSubmission[] }) {
-  const [tab, setTab] = useState<TabType>('ALL')
+export default function AdminLogsClient({ logs }: { logs: TLog[] }) {
+  const [tab, setTab] = useState<TabLevel>('ALL')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortField>('createdAt')
   const [dir, setDir] = useState<SortDir>('desc')
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return submissions
-      .filter((s) => tab === 'ALL' || s.type === tab)
-      .filter(
-        (s) =>
-          !q ||
-          s.firstName.toLowerCase().includes(q) ||
-          s.lastName.toLowerCase().includes(q) ||
-          s.email.toLowerCase().includes(q) ||
-          s.message.toLowerCase().includes(q)
-      )
+    return logs
+      .filter((l) => tab === 'ALL' || l.level === tab)
+      .filter((l) => !q || l.message.toLowerCase().includes(q) || (l.userId ?? '').toLowerCase().includes(q))
       .sort((a, b) => {
-        let av: number | string = a[sort] as number | string
-        let bv: number | string = b[sort] as number | string
+        let av: number | string = (a[sort] ?? '') as number | string
+        let bv: number | string = (b[sort] ?? '') as number | string
         if (sort === 'createdAt') {
           av = new Date(av).getTime()
           bv = new Date(bv).getTime()
         }
         return dir === 'asc' ? (av > bv ? 1 : -1) : av < bv ? 1 : -1
       })
-  }, [submissions, tab, search, sort, dir])
+  }, [logs, tab, search, sort, dir])
 
   const toggleSort = (f: SortField) => {
     if (sort === f) setDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -146,10 +151,10 @@ export default function AdminContactSubmissionsPage({ submissions }: { submissio
   }
 
   // Stats
-  const total = submissions.length
-  const unread = submissions.filter((s) => s.status === 'NEW').length
-  const partners = submissions.filter((s) => s.type === 'PARTNER').length
-  const sponsors = submissions.filter((s) => s.type === 'SPONSOR').length
+  const total = logs.length
+  const errors = logs.filter((l) => l.level === 'error').length
+  const warns = logs.filter((l) => l.level === 'warn').length
+  const recent = getRecentCount(logs)
 
   const thClass =
     'px-4 py-3 font-mono text-[9px] tracking-[0.15em] uppercase text-text-light/35 dark:text-text-dark/30 text-left select-none'
@@ -162,24 +167,24 @@ export default function AdminContactSubmissionsPage({ submissions }: { submissio
       {/* Header */}
       <div className="border-b border-border-subtle dark:border-border-dark pb-6">
         <p className="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-2">
-          {`// contact`}
+          {`// system`}
         </p>
-        <h1 className="font-mono text-2xl font-bold text-text-light dark:text-text-dark">Submissions</h1>
+        <h1 className="font-mono text-2xl font-bold text-text-light dark:text-text-dark">Logs</h1>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border-subtle dark:bg-border-dark">
         <StatCard label="Total" value={String(total)} sub="all time" />
-        <StatCard label="Unread" value={String(unread)} sub="need attention" />
-        <StatCard label="Partners" value={String(partners)} sub="partnership inquiries" />
-        <StatCard label="Sponsors" value={String(sponsors)} sub="sponsorship inquiries" />
+        <StatCard label="Errors" value={String(errors)} sub="need attention" />
+        <StatCard label="Warnings" value={String(warns)} sub="potential issues" />
+        <StatCard label="Last 24h" value={String(recent)} sub="recent activity" />
       </div>
 
       {/* Tabs + Search */}
       <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4">
         <div className="flex border border-border-subtle dark:border-border-dark overflow-x-auto">
           {TABS.map((t) => {
-            const count = t === 'ALL' ? submissions.length : submissions.filter((s) => s.type === t).length
+            const count = t === 'ALL' ? logs.length : logs.filter((l) => l.level === t).length
             return (
               <button
                 key={t}
@@ -201,7 +206,7 @@ export default function AdminContactSubmissionsPage({ submissions }: { submissio
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, email, message..."
+            placeholder="Search message or user..."
             className="bg-transparent font-mono text-xs text-text-light dark:text-text-dark placeholder-text-light/25 dark:placeholder-text-dark/25 outline-none w-full"
           />
         </div>
@@ -209,19 +214,25 @@ export default function AdminContactSubmissionsPage({ submissions }: { submissio
 
       {/* Table */}
       <div className="border border-border-subtle dark:border-border-dark overflow-x-auto">
-        <table className="w-full min-w-180">
+        <table className="w-full min-w-160 table-fixed">
+          <colgroup>
+            <col className="w-24" />
+            <col className="w-auto" />
+            <col className="w-36" />
+            <col className="w-40" />
+            <col className="w-8" />
+          </colgroup>
           <thead className="border-b border-border-subtle dark:border-border-dark bg-accent dark:bg-accent-dark">
             <tr>
-              <th className={thSortClass('firstName')} onClick={() => toggleSort('firstName')}>
-                {`Sender${sortIndicator('firstName')}`}
+              <th className={thSortClass('level')} onClick={() => toggleSort('level')}>
+                {`Level${sortIndicator('level')}`}
               </th>
-              <th className={thSortClass('type')} onClick={() => toggleSort('type')}>
-                {`Type${sortIndicator('type')}`}
+              <th className={thSortClass('message')} onClick={() => toggleSort('message')}>
+                {`Message${sortIndicator('message')}`}
               </th>
-              <th className={thClass}>Status</th>
-              <th className={thClass}>Message</th>
+              <th className={thClass}>User</th>
               <th className={thSortClass('createdAt')} onClick={() => toggleSort('createdAt')}>
-                {`Date${sortIndicator('createdAt')}`}
+                {`Time${sortIndicator('createdAt')}`}
               </th>
               <th className={thClass} />
             </tr>
@@ -230,14 +241,14 @@ export default function AdminContactSubmissionsPage({ submissions }: { submissio
             {filtered.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={5}
                   className="px-4 py-12 text-center font-mono text-xs text-text-light/30 dark:text-text-dark/25"
                 >
-                  {`// no submissions found`}
+                  {`// no logs found`}
                 </td>
               </tr>
             ) : (
-              filtered.map((s) => <SubmissionRow key={s.id} submission={s} />)
+              filtered.map((l) => <LogRow key={l.id} log={l} />)
             )}
           </tbody>
         </table>
@@ -245,7 +256,7 @@ export default function AdminContactSubmissionsPage({ submissions }: { submissio
 
       {/* Footer */}
       <p className="font-mono text-[10px] text-text-light/30 dark:text-text-dark/25">
-        {`// showing ${filtered.length} of ${submissions.length} submissions`}
+        {`// showing ${filtered.length} of ${logs.length} logs`}
       </p>
     </div>
   )

@@ -165,13 +165,13 @@ export async function getMemberPortal() {
       })
     )
   } catch (error) {
-    await createLog('error', 'Failed to fetch supporter dashboard data', {
+    await createLog('error', 'Failed to fetch member portal data', {
       error: error instanceof Error ? error.message : 'Unknown error'
     })
 
     return {
       success: false,
-      error: 'Failed to fetch supporter dashboard data. Please try again.'
+      error: 'Failed to fetch member portal data. Please try again.'
     }
   }
 }

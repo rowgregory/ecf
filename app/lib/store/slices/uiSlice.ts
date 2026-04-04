@@ -14,7 +14,9 @@ const uiInitialState = {
   isDark: false,
   contactDrawer: false,
   contactSubmissionSuccessModal: false,
-  paymentMethodDrawer: false
+  paymentMethodDrawer: false,
+  createAdminModal: false,
+  item: null
 }
 
 const uiSlice = createSlice({
@@ -84,6 +86,16 @@ const uiSlice = createSlice({
     },
     setClosePaymentMethodDrawer: (state) => {
       state.paymentMethodDrawer = false
+    },
+    setOpenCreateAdminModal: (state) => {
+      state.createAdminModal = true
+    },
+    setCloseCreateAdminModal: (state) => {
+      state.createAdminModal = false
+    },
+    setOpenUpdateAdminModal: (state, { payload }) => {
+      state.createAdminModal = true
+      state.item = payload
     }
   }
 })
@@ -111,5 +123,8 @@ export const {
   setCloseContactSubmissionSuccessModal,
   setClosePaymentMethodDrawer,
   setIsDark,
-  setOpenPaymentMethodDrawer
+  setOpenPaymentMethodDrawer,
+  setCloseCreateAdminModal,
+  setOpenCreateAdminModal,
+  setOpenUpdateAdminModal
 } = uiSlice.actions

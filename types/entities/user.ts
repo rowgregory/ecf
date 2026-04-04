@@ -1,8 +1,9 @@
 // Enums
 export type Role = 'ADMIN' | 'SUPERUSER' | 'SUPPORTER'
 
-export interface IUser {
-  accounts: []
+export interface TUser {
+  emailVerified: unknown
+  accounts?: any
   id: string
   email: string
   role: Role

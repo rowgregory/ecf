@@ -178,24 +178,20 @@ function ChangelogCard({ change }: { change: Change }) {
   const impactConfig_ = impactConfig[change.impact]
 
   return (
-    <motion.div
-      className="border border-border-light dark:border-border-dark rounded-lg p-4 hover:border-primary-dark/50 dark:hover:border-primary-light/50 transition-colors"
-      whileHover={{ y: -2 }}
-    >
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-        <div className="flex flex-wrap gap-2">
-          <span className={`px-2 py-1 rounded text-xs font-semibold border ${typeConfig.color}`}>
-            {typeConfig.label}
-          </span>
-          <span className={`px-2 py-1 rounded text-xs font-semibold ${impactConfig_.color}`}>
-            {impactConfig_.label} Impact
-          </span>
-        </div>
+    <div className="border-b border-border-subtle dark:border-border-dark py-4 last:border-b-0">
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        <span className={`font-mono text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 border ${typeConfig.color}`}>
+          {typeConfig.label}
+        </span>
+        <span className={`font-mono text-[9px] tracking-[0.15em] uppercase px-2 py-0.5 ${impactConfig_.color}`}>
+          {impactConfig_.label} Impact
+        </span>
       </div>
-
-      <h4 className="text-lg font-bold text-text-light dark:text-text-dark mb-2">{change.title}</h4>
-      <p className="text-text-light/80 dark:text-text-dark/80 text-sm leading-relaxed">{change.description}</p>
-    </motion.div>
+      <h4 className="font-mono text-sm font-medium text-text-light dark:text-text-dark mb-1">{change.title}</h4>
+      <p className="font-mono text-xs text-text-light/55 dark:text-text-dark/50 leading-relaxed">
+        {change.description}
+      </p>
+    </div>
   )
 }
 
@@ -204,18 +200,22 @@ function ChangelogVersion({ entry }: { entry: ChangelogEntry }) {
 
   return (
     <motion.div
-      className="mb-8 border-l-2 border-primary-dark/30 dark:border-primary-light/30 pl-6"
-      initial={{ opacity: 0, x: -20 }}
+      className="border-l border-border-subtle dark:border-border-dark pl-6 mb-10"
+      initial={{ opacity: 0, x: -16 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-3 mb-4 group">
         <motion.div animate={{ rotate: isOpen ? 0 : -90 }} transition={{ duration: 0.2 }}>
-          <ChevronDown size={24} className="text-primary-dark dark:text-primary-light" />
+          <ChevronDown
+            size={14}
+            className="text-text-light/40 dark:text-text-dark/35 group-hover:text-text-light dark:group-hover:text-text-dark transition-colors"
+          />
         </motion.div>
         <div className="text-left">
-          <h3 className="text-2xl font-bold text-text-light dark:text-text-dark">{entry.version}</h3>
-          <p className="text-sm text-text-light/60 dark:text-text-dark/60">{entry.date}</p>
+          <h3 className="font-mono text-base font-bold text-text-light dark:text-text-dark">{entry.version}</h3>
+          <p className="font-mono text-[10px] text-text-light/40 dark:text-text-dark/35 mt-0.5">{entry.date}</p>
         </div>
       </button>
 
@@ -225,12 +225,14 @@ function ChangelogVersion({ entry }: { entry: ChangelogEntry }) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-4"
+            transition={{ duration: 0.25 }}
+            className="border border-border-subtle dark:border-border-dark overflow-hidden"
           >
-            {entry.changes.map((change, idx) => (
-              <ChangelogCard key={idx} change={change} />
-            ))}
+            <div className="px-4">
+              {entry.changes.map((change, idx) => (
+                <ChangelogCard key={idx} change={change} />
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -240,18 +242,35 @@ function ChangelogVersion({ entry }: { entry: ChangelogEntry }) {
 
 export default function Changelog() {
   return (
-    <div className="bg-bg-light dark:bg-bg-dark min-h-screen py-12 md:py-16 px-3 sm:px-4 md:px-6">
-      <div className="max-w-container mx-auto">
+    <div className="bg-bg-light dark:bg-bg-dark min-h-screen">
+      <div className="max-w-container mx-auto px-6 xs:px-10 sm:px-16 md:px-24 lg:px-32">
         {/* Header */}
-        <motion.div className="mb-12" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-4xl md:text-5xl font-black text-text-light dark:text-text-dark mb-3">Changelog</h1>
-          <p className="text-text-light/80 dark:text-text-dark/80 text-lg max-w-2xl">
-            Track all updates, improvements, and bug fixes to Education Comes First.
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="py-16 xs:py-20 lg:py-24 border-b border-border-subtle dark:border-border-dark mb-12"
+        >
+          <p
+            aria-hidden="true"
+            className="font-mono text-[10px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-3"
+          >
+            {`// changelog`}
+          </p>
+          <h1
+            className="font-mono font-bold text-text-light dark:text-text-dark leading-none mb-4"
+            style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)' }}
+          >
+            Changelog
+          </h1>
+          <p className="font-mono text-[13px] xs:text-sm text-text-light/55 dark:text-text-dark/50 tracking-wide leading-relaxed max-w-md">
+            Track all updates, improvements, and fixes to{' '}
+            <span className="text-primary-light dark:text-primary-dark">Education Comes First.</span>
           </p>
         </motion.div>
 
-        {/* Changelog Entries */}
-        <div>
+        {/* Entries */}
+        <div className="pb-24 xs:pb-32">
           {changelogData.map((entry, idx) => (
             <ChangelogVersion key={idx} entry={entry} />
           ))}

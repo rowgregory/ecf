@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { signOut } from 'next-auth/react'
 import { LogOut } from 'lucide-react'
 import { store, useUiSelector } from '@/app/lib/store/store'
@@ -13,9 +12,7 @@ const LogoutButton = () => {
 
     try {
       store.dispatch(setIsLoading())
-      await signOut({
-        callbackUrl: '/auth/login'
-      })
+      await signOut({ redirectTo: '/auth/login' })
     } catch (error: unknown) {
       store.dispatch(
         showToast({
@@ -30,18 +27,16 @@ const LogoutButton = () => {
   }
 
   return (
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+    <button
       onClick={handleLogout}
-      className="relative p-2 bg-accent dark:bg-accent-dark border border-border-light dark:border-border-dark hover:border-secondary-light dark:hover:border-secondary-dark rounded-[5px] transition-all group"
+      className="relative p-2 bg-accent dark:bg-accent-dark border border-border-light dark:border-border-dark hover:border-secondary-light dark:hover:border-secondary-dark transition-colors group"
     >
       {isLoading ? (
-        <div className="w-5 h-5 border-2 border-secondary-light dark:border-secondary-dark border-t-transparent animate-spin rounded-[5px]" />
+        <div className="w-5 h-5 border-2 border-secondary-light dark:border-secondary-dark border-t-transparent animate-spin" />
       ) : (
         <LogOut className="w-5 h-5 text-text-light/60 dark:text-text-dark/60 group-hover:text-secondary-light dark:group-hover:text-secondary-dark transition-colors" />
       )}
-    </motion.button>
+    </button>
   )
 }
 
