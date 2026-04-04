@@ -1,6 +1,6 @@
 import prisma from '@/prisma/client'
 import { User as NextAuthUser } from 'next-auth'
-// import { createStripeCustomer } from '../actions/createStripeCustomer'
+import { createStripeCustomer } from '../actions/createStripeCustomer'
 import { createLog } from '../actions/createLog'
 import { Account } from 'next-auth'
 import { User, Account as PrismaAccount } from '@prisma/client'
@@ -49,7 +49,7 @@ export async function handleGoogleCallback(
 
     await linkGoogleAccount(newUser, account)
 
-    // await createStripeCustomer(newUser.id, newUser.email, `${newUser.firstName} ${newUser.lastName}`.trim())
+    await createStripeCustomer(newUser.id, newUser.email, `${newUser.firstName} ${newUser.lastName}`.trim())
 
     user.id = newUser.id
 

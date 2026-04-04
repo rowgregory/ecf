@@ -2,106 +2,39 @@
 
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import Link from 'next/link'
-import { Mail, ArrowRight } from 'lucide-react'
-import Picture from '@/app/components/common/Picture'
-import LogoHorizontalDark from '@/public/svg/LogoHorizontalDark'
 import { logAuthError } from '@/app/lib/actions/logAuthError'
-import { store } from '@/app/lib/store/store'
-import { showToast } from '@/app/lib/store/slices/toastSlice'
+import { useUiSelector } from '@/app/lib/store/store'
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
-import getAuthErrorMessage from '@/app/lib/utils/getAuthErrorMessage'
+import { getAuthErrorMessage } from '@/app/lib/utils/getAuthErrorMessage'
+import { fadeUp, staggerChildren } from '@/app/lib/constants/motion'
+import { Cursor, GoogleIcon } from '@/app/components/ui/icons'
+import { EMAIL_REGEX } from '@/app/lib/regex'
+import { Loader2, Zap } from 'lucide-react'
+import { LocalError } from '@/types/common'
+import { InlineMessage } from '@/app/components/common/InlineMessage'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
+  const { isDark } = useUiSelector()
   const searchParams = useSearchParams()
+
   const urlError = searchParams.get('error')
   const errorInfo = urlError ? getAuthErrorMessage(urlError) : null
 
-  const handleGoogleSignIn = async (e: { preventDefault: () => void }) => {
-    e.preventDefault()
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState(false)
+  const [shakeKey, setShakeKey] = useState(0)
 
-    try {
-      await signIn('google', {
-        redirect: true,
-        callbackUrl: '/auth/custom-callback'
-      })
-    } catch (error) {
-      // Check for specific error types
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+  const [magicState, setMagicState] = useState<'idle' | 'loading' | 'sent'>('idle')
+  const [magicError, setMagicError] = useState<LocalError | null>(null)
 
-      store.dispatch(
-        showToast({
-          message: 'Sign-in failed',
-          description: errorMessage.includes('popup')
-            ? 'Please allow popups and try again'
-            : 'Unable to connect with Google. Please try again.',
-          type: 'error'
-        })
-      )
-    }
-  }
+  const [googleState, setGoogleState] = useState<'idle' | 'loading'>('idle')
+  const [googleError, setGoogleError] = useState<LocalError | null>(null)
 
-  const handleMagicLink = async (e: { preventDefault: () => void }) => {
-    e.preventDefault()
+  const [logoutSuccess, setLogoutSuccess] = useState(false)
 
-    if (!email) {
-      setErrorMsg('Enter valid email')
-      return
-    }
-
-    try {
-      setIsSubmitting(true)
-      localStorage.setItem('lastMagicLinkEmail', email)
-
-      const result = await signIn('email', {
-        email,
-        redirect: false,
-        callbackUrl: '/auth/custom-callback'
-      })
-
-      if (result?.ok) {
-        store.dispatch(
-          showToast({
-            message: 'Magic link sent!',
-            description: `Check ${email} for your sign-in link`,
-            type: 'success'
-          })
-        )
-        setEmail('')
-        setErrorMsg('')
-      } else if (result?.error) {
-        store.dispatch(
-          showToast({
-            message: 'Failed to send magic link',
-            description: result.error === 'EmailSignin' ? 'Invalid email address' : 'Please try again',
-            type: 'error'
-          })
-        )
-      }
-    } catch {
-      store.dispatch(
-        showToast({
-          message: 'Something went wrong',
-          description: 'Unable to send magic link. Please try again.',
-          type: 'error'
-        })
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
+  // ─── Log URL auth errors ────────────────────────────────────────────────────
   useEffect(() => {
-    // Skip false positives
-    if (!urlError || urlError === 'undefined' || urlError === 'null') {
-      return
-    }
-
-    // Only log if we have valid error info AND it's a real error code
     const knownErrors = [
       'AccessDenied',
       'Verification',
@@ -112,218 +45,419 @@ export default function LoginPage() {
       'Configuration'
     ]
 
-    if (errorInfo) {
-      const savedEmail = localStorage.getItem('lastMagicLinkEmail')
+    if (!urlError || urlError === 'undefined' || urlError === 'null' || !errorInfo) return
 
-      logAuthError({
-        error: urlError,
-        title: errorInfo.title,
-        message: errorInfo.message,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        email: savedEmail || undefined,
-        isKnownError: knownErrors.includes(urlError) // Helps you filter in DB
-      })
-    }
+    logAuthError({
+      error: urlError,
+      title: errorInfo.title,
+      message: errorInfo.message,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      email: localStorage.getItem('lastMagicLinkEmail') ?? undefined,
+      isKnownError: knownErrors.includes(urlError)
+    })
   }, [urlError, errorInfo])
 
+  // ─── Handle post-logout redirect ───────────────────────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('logout') !== 'success') return
+
+    setLogoutSuccess(true)
+    window.history.replaceState({}, '', '/auth/login')
+  }, [])
+
+  // ─── Handlers ──────────────────────────────────────────────────────────────
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (googleState !== 'idle') return
+
+    setGoogleError(null)
+    setGoogleState('loading')
+
+    try {
+      await signIn('google', { redirect: true, callbackUrl: '/auth/login' })
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : ''
+      setGoogleError({
+        title: 'Google sign-in failed',
+        message: msg.toLowerCase().includes('popup')
+          ? 'Please allow popups and try again.'
+          : 'Unable to connect with Google. Please try again.'
+      })
+    } finally {
+      setGoogleState('idle')
+    }
+  }
+
+  const handleMagicLink = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    if (magicState !== 'idle') return
+
+    setMagicError(null)
+
+    if (!email || !EMAIL_REGEX.test(email)) {
+      setEmailError(true)
+      setShakeKey((k) => k + 1)
+      setTimeout(() => setEmailError(false), 1600)
+      return
+    }
+
+    setMagicState('loading')
+
+    try {
+      localStorage.setItem('lastMagicLinkEmail', email)
+
+      const result = await signIn('email', {
+        email,
+        redirect: false,
+        callbackUrl: '/auth/login'
+      })
+
+      if (result?.ok) {
+        setMagicState('sent')
+        setEmail('')
+      } else {
+        setMagicError({
+          title: 'Failed to send magic link',
+          message: result?.error === 'EmailSignin' ? "That email address wasn't recognised." : 'Please try again.'
+        })
+        setMagicState('idle')
+      }
+    } catch {
+      setMagicError({
+        title: 'Something went wrong',
+        message: 'Unable to send magic link. Please try again.'
+      })
+      setMagicState('idle')
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex">
-      {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-12 py-12">
+    <div className="min-h-screen bg-bg-light dark:bg-bg-dark flex items-center justify-center relative overflow-hidden transition-colors duration-300">
+      {/* Subtle grid — decorative */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+          color: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)'
+        }}
+      />
+
+      {/* Ambient blobs — decorative */}
+      <motion.div
+        aria-hidden="true"
+        className="fixed -top-35 -right-25 w-120 h-120 rounded-full pointer-events-none bg-primary-light dark:bg-primary-dark"
+        style={{ filter: 'blur(110px)', opacity: isDark ? 0.12 : 0.13 }}
+        animate={{ x: [0, -20, 0], y: [0, 25, 0], scale: [1, 1.07, 1] }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        aria-hidden="true"
+        className="fixed -bottom-25 -left-20 w-90 h-90 rounded-full pointer-events-none bg-secondary-light dark:bg-secondary-dark"
+        style={{ filter: 'blur(100px)', opacity: isDark ? 0.1 : 0.09 }}
+        animate={{ x: [0, 20, 0], y: [0, -20, 0], scale: [1, 1.05, 1] }}
+        transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Skip link */}
+      <a
+        href="#login-form"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-light dark:focus:bg-primary-dark focus:text-accent-dark focus:font-mono focus:text-sm"
+      >
+        Skip to login form
+      </a>
+
+      <main className="relative z-10 w-full px-4 py-8 flex items-center justify-center min-h-screen">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
           className="w-full max-w-md"
+          initial={{ opacity: 0, y: 28, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Logo */}
-          <Link href="/" className="">
-            <div className="w-32 sm:w-40 md:w-48 lg:w-52">
-              <Picture
-                src="/svg/logo-horizontal-light.svg"
-                alt="Education Comes First"
-                className="dark:hidden block w-full h-full cursor-pointer hover:opacity-80 transition-opacity"
-                priority={true}
-              />
-              <LogoHorizontalDark />
-            </div>
-          </Link>
-
-          {/* Header */}
-          <div className="mb-8 mt-3">
-            <p className="font-lato text-base text-text-light/60 dark:text-text-dark/60">
-              Sign in to continue supporting students
-            </p>
-          </div>
-
-          <motion.button
-            type="button"
-            onClick={handleGoogleSignIn}
-            whileTap={{ scale: 0.98 }}
-            className="w-full flex items-center justify-center gap-3 bg-bg-light dark:bg-bg-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark font-lato font-semibold px-6 py-4 rounded-[5px] hover:bg-accent dark:hover:bg-accent-dark transition-all shadow-sm hover:shadow-md mb-6 cursor-pointer"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            Continue with Google
-          </motion.button>
-
-          {/* Divider */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border-light dark:border-border-dark" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-bg-light dark:bg-bg-dark font-lato text-text-light/60 dark:text-text-dark/60">
-                Or continue with email
+          <div className="w-full border border-border-light dark:border-border-dark bg-white/80 dark:bg-accent-dark/80 backdrop-blur-xl transition-colors duration-300">
+            {/* Traffic-light bar — decorative */}
+            <div
+              aria-hidden="true"
+              className="flex items-center gap-2 px-4 xs:px-5 py-3 border-b border-border-light dark:border-border-dark bg-black/2 dark:bg-white/2"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+              <span className="ml-auto text-[10px] tracking-widest uppercase font-mono text-text-light/20 dark:text-text-dark/20">
+                auth.ecf.org
               </span>
             </div>
-          </div>
 
-          {/* Success Banner */}
-          <AnimatePresence>
-            {errorMsg && (
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="mb-8 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center gap-3"
-              >
-                <div className="shrink-0">
-                  <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-red-800 dark:text-red-200">Error</p>
-                  <p className="text-xs text-red-700 dark:text-red-300">{errorMsg}</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Magic Link Form */}
-          <form onSubmit={handleMagicLink} className="space-y-6">
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block font-lato text-sm font-medium text-text-light dark:text-text-dark mb-2"
-              >
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-text-light/40 dark:text-text-dark/40" />
-                </div>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="you@example.com"
-                  className="w-full pl-12 pr-4 py-4 bg-bg-light dark:bg-bg-dark border-2 border-border-light dark:border-border-dark rounded-[5px] font-lato text-text-light dark:text-text-dark placeholder:text-text-light/40 dark:placeholder:text-text-dark/40 focus:outline-none focus:border-primary-light dark:focus:border-primary-dark transition-colors"
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <motion.button
-              type="submit"
-              disabled={isSubmitting}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full flex items-center justify-center gap-2 bg-secondary-light dark:bg-secondary-dark text-white dark:text-text-dark font-lato font-semibold px-8 py-4 rounded-[5px] shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            {/* Body */}
+            <motion.div
+              id="login-form"
+              className="px-5 xs:px-9 pt-8 xs:pt-10 pb-6 xs:pb-8 flex flex-col gap-0"
+              variants={staggerChildren}
+              initial="hidden"
+              animate="visible"
             >
-              {isSubmitting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-text-light/30 dark:border-text-dark/30 border-t-text-light dark:border-t-text-dark rounded-full animate-spin" />
-                  <span>Sending Magic Link...</span>
-                </>
-              ) : (
-                <>
-                  <span>Send Magic Link</span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </motion.button>
-          </form>
+              {/* Brand */}
+              <motion.div className="mb-6 xs:mb-8" variants={fadeUp}>
+                <p
+                  aria-hidden="true"
+                  className="text-[10px] tracking-[0.18em] uppercase mb-2 font-mono text-secondary-light dark:text-secondary-dark"
+                >
+                  {'// portal access'}
+                </p>
+                <h1 className="text-lg xs:text-xl font-bold leading-snug font-mono text-text-light dark:text-text-dark">
+                  Education
+                  <br />
+                  <span className="text-primary-light dark:text-primary-dark">Comes First</span>
+                  <Cursor />
+                </h1>
+                <p className="text-[11px] mt-2 tracking-wide font-mono text-text-light/40 dark:text-text-dark/35">
+                  Sign in to continue to your account
+                </p>
+              </motion.div>
 
-          {/* Terms */}
-          <div className="mt-8 text-center">
-            <p className="font-lato text-xs text-text-light/50 dark:text-text-dark/50">
-              By continuing, you agree to our{' '}
-              <Link href="/terms" className="underline hover:text-text-light dark:hover:text-text-dark">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link href="/privacy" className="underline hover:text-text-light dark:hover:text-text-dark">
-                Privacy Policy
-              </Link>
-            </p>
+              {/* Logout success */}
+              <AnimatePresence>
+                {logoutSuccess && (
+                  <motion.div className="mb-4" variants={fadeUp}>
+                    <InlineMessage
+                      id="logout-success"
+                      type="success"
+                      title="You've been signed out"
+                      message="Sign back in any time to continue supporting education."
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* URL error */}
+              <AnimatePresence>
+                {errorInfo && (
+                  <motion.div className="mb-4" variants={fadeUp}>
+                    <InlineMessage
+                      id="url-error"
+                      type="error"
+                      icon={errorInfo.icon}
+                      title={errorInfo.title}
+                      message={errorInfo.message}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Google */}
+              <motion.div className="flex flex-col gap-2" variants={fadeUp}>
+                <motion.button
+                  onClick={handleGoogleSignIn}
+                  disabled={googleState !== 'idle'}
+                  aria-label="Continue with Google"
+                  aria-busy={googleState === 'loading'}
+                  aria-describedby={googleError ? 'google-error' : undefined}
+                  className="w-full flex items-center justify-center gap-2.5 px-4 xs:px-5 py-3 text-[11px] font-bold tracking-widest uppercase font-mono border border-border-light dark:border-border-dark text-text-light dark:text-text-dark bg-transparent disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark min-h-11"
+                  whileHover={googleState === 'idle' ? { y: -1 } : {}}
+                  whileTap={googleState === 'idle' ? { y: 0 } : {}}
+                  transition={{ duration: 0.15 }}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {googleState === 'idle' ? (
+                      <motion.span
+                        key="g-idle"
+                        className="flex items-center gap-2.5"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <GoogleIcon /> Continue with Google
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="g-load"
+                        className="flex items-center gap-2.5"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <Loader2 size={13} className="animate-spin" aria-hidden="true" /> Signing in...
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+
+                <AnimatePresence>
+                  {googleError && (
+                    <InlineMessage
+                      id="google-error"
+                      type="error"
+                      title={googleError.title}
+                      message={googleError.message}
+                    />
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* Divider */}
+              <motion.div
+                className="flex items-center gap-3 my-5 xs:my-6"
+                variants={fadeUp}
+                role="separator"
+                aria-hidden="true"
+              >
+                <div className="flex-1 h-px bg-border-light dark:bg-border-dark" />
+                <span className="text-[10px] tracking-widest uppercase font-mono text-text-light/20 dark:text-text-dark/20">
+                  or
+                </span>
+                <div className="flex-1 h-px bg-border-light dark:bg-border-dark" />
+              </motion.div>
+
+              {/* Email + magic link */}
+              <motion.div className="flex flex-col gap-2" variants={fadeUp}>
+                <div>
+                  <label
+                    htmlFor="email-input"
+                    className="block text-[10px] tracking-[0.14em] uppercase mb-1.5 font-mono text-text-light/45 dark:text-text-dark/40"
+                  >
+                    Email address
+                  </label>
+                  <motion.div
+                    key={shakeKey}
+                    animate={emailError ? { x: [0, -8, 8, -6, 6, -3, 3, 0] } : { x: 0 }}
+                    transition={{ duration: 0.45 }}
+                  >
+                    <input
+                      id="email-input"
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value)
+                        if (magicError) setMagicError(null)
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && handleMagicLink(e)}
+                      placeholder="you@school.org"
+                      disabled={magicState === 'sent'}
+                      autoComplete="email"
+                      aria-invalid={emailError}
+                      aria-describedby={emailError ? 'email-field-error' : magicError ? 'magic-error' : undefined}
+                      className={`w-full px-3.5 py-3 text-[13px] outline-none transition-all duration-200 font-mono bg-white dark:bg-accent-dark text-text-light dark:text-text-dark placeholder:text-text-light/25 dark:placeholder:text-text-dark/20 border disabled:opacity-50 min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                        emailError
+                          ? 'border-red-400 shadow-[0_0_0_3px_rgba(248,113,113,0.10)] focus-visible:outline-red-400'
+                          : 'border-border-light dark:border-border-dark focus:border-primary-light dark:focus:border-primary-dark focus:shadow-[0_0_0_3px_rgba(201,243,31,0.08)] focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark'
+                      }`}
+                    />
+                  </motion.div>
+
+                  <AnimatePresence>
+                    {emailError && (
+                      <motion.p
+                        id="email-field-error"
+                        role="alert"
+                        className="text-[10px] mt-1.5 tracking-wide font-mono text-red-400"
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        Enter a valid email address
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Magic link button ↔ success strip */}
+                <AnimatePresence mode="wait" initial={false}>
+                  {magicState !== 'sent' ? (
+                    <motion.button
+                      key="magic-btn"
+                      onClick={handleMagicLink}
+                      disabled={magicState === 'loading'}
+                      aria-label="Send magic link sign-in email"
+                      aria-busy={magicState === 'loading'}
+                      aria-describedby={magicError ? 'magic-error' : undefined}
+                      className="w-full flex items-center justify-center gap-2.5 px-4 xs:px-5 py-3 text-[11px] font-bold tracking-widest uppercase font-mono border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark text-accent-dark disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark min-h-11"
+                      whileHover={magicState === 'idle' ? { y: -1, boxShadow: '0 6px 24px rgba(201,243,31,0.20)' } : {}}
+                      whileTap={magicState === 'idle' ? { y: 0 } : {}}
+                      transition={{ duration: 0.15 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <AnimatePresence mode="wait" initial={false}>
+                        {magicState === 'idle' ? (
+                          <motion.span
+                            key="idle"
+                            className="flex items-center gap-2.5"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                          >
+                            <Zap size={13} strokeWidth={2.5} aria-hidden="true" /> Send Magic Link
+                          </motion.span>
+                        ) : (
+                          <motion.span
+                            key="loading"
+                            className="flex items-center gap-2.5"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                          >
+                            <Loader2 size={13} className="animate-spin" aria-hidden="true" /> Sending...
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
+                  ) : (
+                    <motion.div
+                      key="sent"
+                      initial={{ opacity: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <InlineMessage
+                        type="success"
+                        title="Check your inbox"
+                        message={`We sent a sign-in link to ${localStorage.getItem('lastMagicLinkEmail') ?? email}.`}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Magic link send error */}
+                <AnimatePresence>
+                  {magicError && (
+                    <InlineMessage
+                      id="magic-error"
+                      type="error"
+                      title={magicError.title}
+                      message={magicError.message}
+                    />
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </motion.div>
+
+            {/* Footer */}
+            <div className="flex flex-wrap items-center justify-between gap-2 px-5 xs:px-9 py-4 text-[10px] tracking-wide font-mono border-t border-border-light dark:border-border-dark text-text-light/25 dark:text-text-dark/20 transition-colors duration-300">
+              <span>
+                No account?{' '}
+                <a
+                  href="#"
+                  className="text-secondary-light dark:text-secondary-dark hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-light dark:focus-visible:outline-secondary-dark"
+                >
+                  Request access
+                </a>
+              </span>
+              <a
+                href="#"
+                className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-light dark:focus-visible:outline-secondary-dark"
+              >
+                Privacy
+              </a>
+            </div>
           </div>
         </motion.div>
-      </div>
-
-      {/* Right Side - Hero Image/Gradient */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary-light dark:bg-primary-dark relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
-
-        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <h2 className="font-kanit text-4xl md:text-5xl font-bold text-text-light dark:text-text-dark mb-4">
-              Empowering Education
-            </h2>
-
-            <p className="font-lato text-lg text-text-light/90 dark:text-text-dark/90 max-w-md mx-auto mb-8">
-              Join us in our mission to provide quality educational opportunities to underprivileged youth
-            </p>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
-              <div>
-                <div className="font-kanit text-3xl font-bold text-text-light dark:text-text-dark mb-1">500+</div>
-                <div className="font-lato text-sm text-text-light/80 dark:text-text-dark/80">Students</div>
-              </div>
-              <div>
-                <div className="font-kanit text-3xl font-bold text-text-light dark:text-text-dark mb-1">$1M+</div>
-                <div className="font-lato text-sm text-text-light/80 dark:text-text-dark/80">Awarded</div>
-              </div>
-              <div>
-                <div className="font-kanit text-3xl font-bold text-text-light dark:text-text-dark mb-1">95%</div>
-                <div className="font-lato text-sm text-text-light/80 dark:text-text-dark/80">Success</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
+      </main>
     </div>
   )
 }

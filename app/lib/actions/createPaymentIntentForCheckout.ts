@@ -3,14 +3,15 @@
 import prisma from '@/prisma/client'
 import Stripe from 'stripe'
 import { createLog } from './createLog'
+import { OrderType } from '@prisma/client'
 import { stripe } from '../stripe'
 
-interface CheckoutParams {
-  userId?: string
+interface DonateCheckoutParams {
+  userId: string
   email: string
   name: string
-  amount: number // in cents
-  orderType: 'ONE_TIME_DONATION' | 'RECURRING_DONATION' | 'TICKET_PURCHASE'
+  amount: number
+  orderType: OrderType
   description: string
   saveCard?: boolean
   coverFees?: boolean
@@ -29,59 +30,18 @@ export async function createPaymentIntentForCheckout({
   coverFees = false,
   feesCovered = 0,
   savedCardId
-}: CheckoutParams) {
+}: DonateCheckoutParams) {
   try {
-    // VALIDATE MINIMUM AMOUNT
     if (amount < 500) {
-      // Remember: Stripe uses cents, so $5 = 500
-      throw new Error('Minimum donation is $5')
+      throw new Error('Minimum purchase amount is $5')
     }
 
-    let customerId: string | undefined
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { stripeCustomerId: true }
+    })
 
-    if (userId) {
-      // Logged-in user - use their customer
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { stripeCustomerId: true }
-      })
-
-      if (user?.stripeCustomerId) {
-        customerId = user.stripeCustomerId
-      }
-    } else {
-      // Not logged in - check if user exists by email
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-        select: { stripeCustomerId: true }
-      })
-
-      if (existingUser?.stripeCustomerId) {
-        // User has account and Stripe customer, use it
-        customerId = existingUser.stripeCustomerId
-      } else {
-        // No user record - check Stripe for existing customer by email
-        const stripeCustomers = await stripe.customers.search({
-          query: `email:"${email}"`,
-          limit: 1
-        })
-
-        if (stripeCustomers.data.length > 0) {
-          // Reuse existing Stripe customer (from previous guest donation)
-          customerId = stripeCustomers.data[0].id
-        } else {
-          // No Stripe customer - create guest customer
-          const customer = await stripe.customers.create({
-            email,
-            metadata: {
-              userId: 'guest',
-              createdAt: new Date().toISOString()
-            }
-          })
-          customerId = customer.id
-        }
-      }
-    }
+    const customerId = user?.stripeCustomerId ?? undefined
 
     // Create payment intent
     const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
@@ -92,7 +52,7 @@ export async function createPaymentIntentForCheckout({
       description,
       setup_future_usage: saveCard ? 'on_session' : undefined,
       metadata: {
-        userId: userId || 'guest',
+        userId,
         orderType,
         name,
         email,
@@ -132,8 +92,6 @@ export async function createPaymentIntentForCheckout({
       paymentIntentId: paymentIntent.id
     }
   } catch (error) {
-    console.error('Payment intent error details:', error)
-
     await createLog('error', 'Payment intent creation error', {
       error: error instanceof Error ? error.message : 'Unknown error',
       stripeError: error instanceof Error ? (error as any).code : undefined,

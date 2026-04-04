@@ -1,11 +1,11 @@
 import { FC } from 'react'
 import { motion } from 'framer-motion'
-import { overlayVariants } from '@/app/lib/constants/motion'
+import { backdropVariants } from '@/app/lib/constants/motion'
 
-const Backdrop: FC<{ onClose: () => void }> = ({ onClose }) => {
+export const Backdrop: FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
     <motion.div
-      variants={overlayVariants}
+      variants={backdropVariants}
       initial="closed"
       animate="open"
       exit="closed"
@@ -14,5 +14,3 @@ const Backdrop: FC<{ onClose: () => void }> = ({ onClose }) => {
     />
   )
 }
-
-export default Backdrop

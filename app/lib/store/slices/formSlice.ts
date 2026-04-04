@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialContactSubmissionFormState } from '../../constants/initial-state/contact-submission'
+import { initialPaymentMethodFormState } from '../../constants/initial-state/payment-method'
 
 // 1. Better type definitions
 export type Inputs = Record<string, string | number | boolean | any>
@@ -7,7 +8,9 @@ export type Errors = Record<string, string>
 
 // 2. Create a type-safe form registry
 export const FORM_REGISTRY = {
-  contactSubmissionForm: initialContactSubmissionFormState
+  contactSubmissionForm: initialContactSubmissionFormState,
+  paymentMethodForm: initialPaymentMethodFormState,
+  donateCheckoutForm: {}
 } as const
 
 export type FormName = keyof typeof FORM_REGISTRY
@@ -50,7 +53,7 @@ const generateInitialForms = (): Record<FormName, FormData> => {
   for (const [formName, initialInputs] of Object.entries(FORM_REGISTRY)) {
     forms[formName as FormName] = {
       inputs: initialInputs,
-      errors: {},
+      errors: { cardholderName: '', cardComplete: '' },
       isDirty: false,
       touchedFields: []
     }
@@ -88,6 +91,7 @@ const formSlice = createSlice({
 
     setInputs: (state, { payload }: PayloadAction<{ formName: FormName; data: Inputs }>) => {
       const { formName, data } = payload
+
       if (state.forms[formName]) {
         state.forms[formName].inputs = {
           ...state.forms[formName].inputs,

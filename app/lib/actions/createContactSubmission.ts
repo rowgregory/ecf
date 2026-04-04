@@ -2,7 +2,6 @@
 
 import prisma from '@/prisma/client'
 import { IContactSubmission } from '@/types/entities/contact-submission'
-import { revalidatePath } from 'next/cache'
 import { createLog } from './createLog'
 import { ContactSubmissionType } from '@prisma/client'
 
@@ -37,12 +36,9 @@ export const createContactSubmission = async (data: Omit<IContactSubmission, 'id
       status: data.status
     }
 
-    console.log('sub data: ', submissionData)
-
-    const contact = await prisma.contactSubmission.create({
+    await prisma.contactSubmission.create({
       data: submissionData
     })
-    console.log('contact data: ', contact)
 
     // try {
     // await sendAdminNotification("CONTACT_SUBMISSION", {
@@ -59,8 +55,6 @@ export const createContactSubmission = async (data: Omit<IContactSubmission, 'id
     //     error: emailError instanceof Error ? emailError.message : 'Unknown error'
     //   })
     // }
-
-    revalidatePath('/admin/contacts')
 
     return {
       success: true

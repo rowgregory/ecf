@@ -11,3 +11,5 @@ export interface IActionItem {
   open: ActionHandler
   formName: string
 }
+
+export type LocalError = { title: string; message: string }

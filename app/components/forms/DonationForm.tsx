@@ -1,427 +1,99 @@
-import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js'
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { useUiSelector } from '@/app/lib/store/store'
-import { useDonationPayment } from '@/app/lib/hooks/useDonationPayment'
-import { getSavedPaymentMethods } from '@/app/lib/actions/getSavedPaymentMethods'
 import { IPaymentMethod } from '@/types/entities/payment-method'
-import { MONTHLY_PLANS, ONE_TIME_PLANS, YEARLY_PLANS } from '@/app/lib/constants/donate-plans'
-import { createPaymentIntentForCheckout } from '@/app/lib/actions/createPaymentIntentForCheckout'
-import { createSubscriptionWithSavedCard } from '@/app/lib/actions/createSubscriptionWithSavedCard'
-import { createSetupIntentForSubscription } from '@/app/lib/actions/createSetupIntentForSubscription'
-import { createSubscriptionAfterSetup } from '@/app/lib/actions/createSubscriptionAfterSetup'
-import { DonationTypeSelection } from './donate/DonationTypeSelection'
-import { OneTimeAmount } from './donate/OneTimeAmount'
-import { MonthlyPlans } from './donate/MonthlyPlans'
-import { YearlyPlans } from './donate/YearlyPlans'
-import { ContactInformation } from './donate/ContactInformation'
-import Link from 'next/link'
-import { SubmitButton } from './donate/SubmitButton'
-import SavedCardsSelection from './donate/SavedCardsSelection'
-import Switch from '../common/Switch'
+import { useDonationSubmit } from '@/app/lib/hooks/useDonationSubmit'
+import { calculateStripeFees } from '@/app/lib/utils/calculateStripeFees'
+import { useDefaultCard } from '@/app/lib/hooks/useDefaultCard'
+import { setDonateCheckoutForm as setForm } from '@/app/lib/utils/setDonateCheckoutForm'
+import { getDonateCheckoutAmount } from '@/app/lib/utils/getDonateCheckoutAmount'
+import { useInitializeForm } from '@/app/lib/hooks/useInitializeForm'
+import { Step3DonationAmountSection } from './donate/Step3DonationAmountSection'
+import { CheckoutStep3UserInfo } from './donate/CheckoutStep3UserInfo'
+import { CardElementField } from '../common/CardElementField'
+import { SavedCardSelector } from '../common/SavedCardSelector'
+import { SaveCardToggle } from '../common/SaveCardToggle'
+import { CoverFeesToggle } from '../common/CoverFeesToggle'
+import { FormError } from '../common/FormError'
+import { SubmitButton } from '../common/SubmitButton'
 
-function DonationForm() {
-  const stripe = useStripe()
-  const elements = useElements()
+export type TDonateCheckoutForm = {
+  savedCards: IPaymentMethod[]
+  inputs: any
+  setStep: (step: number) => void
+}
+
+export function DonateCheckoutForm({ savedCards, inputs, setStep }: TDonateCheckoutForm) {
+  // ── Store ─────────────────────────────────────────────────────────────────
   const session = useSession()
-  const [email, setEmail] = useState<string>('')
-  const [name, setName] = useState<string>('')
-  const [error, setError] = useState<string>('')
-  const [amount, setAmount] = useState(50)
-  const [selectedPlan, setSelectedPlan] = useState<string>('once_friend')
-  const [processingStatus, setProcessingStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle')
-  const [donationType, setDonationType] = useState<'once' | 'monthly' | 'yearly'>('once')
-  const [savedCards, setSavedCards] = useState<IPaymentMethod[]>([])
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [saveCard, setSaveCard] = useState<boolean>(false)
-  const [useNewCard, setUseNewCard] = useState<boolean>(false)
-  const [coverFees, setCoverFees] = useState<boolean>(true)
-  const { isDark } = useUiSelector()
-  const { setupPusherListenerOneTime, getPaymentMethodId, setupPusherListenerRecurring } = useDonationPayment()
+  const isAuthed = session.status === 'authenticated'
 
-  useEffect(() => {
-    const loadPaymentMethods = async () => {
-      if (session?.status !== 'authenticated' || !session?.data?.user?.id) return
+  // ── Derived ───────────────────────────────────────────────────────────────
+  const baseAmount = getDonateCheckoutAmount(inputs)
+  const processingFee = Math.round(calculateStripeFees(baseAmount) * 100) / 100
+  const finalAmount = Math.round((inputs?.coverFees ? baseAmount + calculateStripeFees(baseAmount) : baseAmount) * 100)
+  const finalAmountDisplay = (finalAmount / 100).toFixed(2)
+  const feesCovered = inputs?.coverFees ? calculateStripeFees(baseAmount) : 0
+  const usingSavedCard = !!(inputs?.selectedCardId && !inputs?.useNewCard)
+  const fullName = `${inputs?.firstName?.trim() ?? ''} ${inputs?.lastName?.trim() ?? ''}`.trim()
 
-      const result = await getSavedPaymentMethods(session.data.user.id)
-      if (!result.success) return
+  const derivedName =
+    inputs?.firstName || inputs?.lastName ? { firstName: inputs.firstName, lastName: inputs.lastName } : null
 
-      setSavedCards(result.data)
+  const isValid = (usingSavedCard ? true : inputs?.cardComplete) && !!derivedName
 
-      const defaultCard = result.data.find((c) => c.isDefault)
-      if (defaultCard) {
-        setSelectedCardId(defaultCard.stripePaymentId)
-      }
-    }
+  const setDefaultCard = useCallback((value: string) => setForm({ selectedCardId: value }), [])
 
-    loadPaymentMethods()
-  }, [session?.status, session?.data?.user?.id])
+  useDefaultCard(savedCards, setDefaultCard)
+  useInitializeForm({ savedCards, ...{ selectedPlan: 'once_friend', amount: 25, donationType: 'once' } })
 
-  // Calculate fees so you receive the exact donation amount
-  const calculateFees = (donationAmount: number) => {
-    const amount = parseFloat(donationAmount.toString()) || 0
-    // Formula: (amount + 0.30) / (1 - 0.022) - amount
-    // This ensures after Stripe takes fees, you get the original amount
-    const totalNeeded = (amount + 0.3) / (1 - 0.022)
-    return totalNeeded - amount
-  }
-
-  const getAmount = () => {
-    // If a preset plan is selected, get its amount
-    if (selectedPlan && !selectedPlan.includes('custom')) {
-      const plans = donationType === 'monthly' ? MONTHLY_PLANS : donationType === 'once' ? ONE_TIME_PLANS : YEARLY_PLANS
-      return plans.find((p) => p.id === selectedPlan)?.amount || 0
-    }
-
-    // Otherwise use the amount input (for one-time or custom recurring)
-    return parseFloat(amount.toString()) || 0
-  }
-
-  const baseAmount = getAmount()
-
-  // Get total amount including fees if opted in
-  const getTotalAmount = () => {
-    return coverFees ? baseAmount + calculateFees(baseAmount) : baseAmount
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!stripe || !elements) return
-
-    // Validate minimum donation amount
-    const baseAmount = getAmount()
-    if (baseAmount < 5) {
-      setError('Minimum donation is $5')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    setProcessingStatus('processing')
-
-    try {
-      const finalAmount = Math.round((coverFees ? getTotalAmount() : baseAmount) * 100)
-      const feesCovered = coverFees ? Math.round(calculateFees(baseAmount) * 100) : 0
-
-      if (donationType === 'once') {
-        // One-time donation flow
-        const intentResult = await createPaymentIntentForCheckout({
-          userId: session?.data?.user?.id,
-          name,
-          email,
-          amount: finalAmount,
-          orderType: 'ONE_TIME_DONATION',
-          description: `One-time donation from ${name}`,
-          saveCard: selectedCardId && !useNewCard ? false : saveCard, // Don't save if already using saved card
-          coverFees,
-          feesCovered,
-          savedCardId: selectedCardId && !useNewCard ? selectedCardId : undefined
-        })
-
-        if (!intentResult.success) {
-          throw new Error(intentResult.error || 'Failed to create payment intent')
-        }
-
-        // Handle based on whether using saved card or new card
-        if (selectedCardId && !useNewCard) {
-          // Saved card - server already confirmed, just listen for webhook
-          setupPusherListenerOneTime(
-            intentResult.paymentIntentId,
-            false,
-            selectedCardId,
-            processingStatus,
-            setError,
-            setProcessingStatus,
-            setLoading
-          )
-        } else {
-          // New card - confirm with Stripe Elements
-          const { clientSecret } = intentResult
-          const cardElement = elements.getElement(CardElement)
-          if (!cardElement) throw new Error('Card element not found')
-
-          if (!clientSecret) {
-            setError('Payment setup failed. Please try again.')
-            setProcessingStatus('failed')
-            return
-          }
-
-          const result = await stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-              card: cardElement,
-              billing_details: { name, email }
-            }
-          })
-
-          if (result.error) {
-            setProcessingStatus('failed')
-            setError(result.error.message || 'Payment failed')
-            return
-          }
-
-          setupPusherListenerOneTime(
-            result.paymentIntent?.id,
-            saveCard,
-            getPaymentMethodId(result.paymentIntent?.payment_method),
-            processingStatus,
-            setError,
-            setProcessingStatus,
-            setLoading
-          )
-        }
-      } else {
-        // Recurring donation flow - SetupIntent or Saved Card
-        if (selectedCardId && !useNewCard) {
-          if (!session.data?.user.id) {
-            setError('User session expired. Please refresh and try again.')
-            setProcessingStatus('failed')
-            return
-          }
-          // Using saved card - skip setup intent, go straight to subscription
-          const subscriptionResult = await createSubscriptionWithSavedCard({
-            userId: session.data?.user.id,
-            email,
-            name,
-            amount: finalAmount,
-            frequency: donationType === 'monthly' ? 'monthly' : 'yearly',
-            coverFees,
-            feesCovered,
-            savedCardId: selectedCardId
-          })
-
-          if (!subscriptionResult.success) {
-            throw new Error(subscriptionResult.error || 'Failed to create subscription')
-          }
-
-          // Wait for order via Pusher
-          setupPusherListenerRecurring(subscriptionResult, processingStatus, setError, setProcessingStatus, setLoading)
-        } else {
-          // New card - create setup intent
-          const setupResult = await createSetupIntentForSubscription({
-            userId: session?.data?.user?.id,
-            email,
-            name,
-            amount: finalAmount,
-            frequency: donationType === 'monthly' ? 'monthly' : 'yearly',
-            coverFees,
-            feesCovered
-          })
-
-          if (!setupResult.success) {
-            throw new Error(setupResult.error || 'Failed to create setup intent')
-          }
-
-          const { clientSecret, setupIntentId } = setupResult
-          const cardElement = elements.getElement(CardElement)
-          if (!cardElement) throw new Error('Card element not found')
-
-          if (!clientSecret) {
-            setError('Payment setup failed. Please try again.')
-            setProcessingStatus('failed')
-            return
-          }
-
-          // Confirm card setup
-          const result = await stripe.confirmCardSetup(clientSecret, {
-            payment_method: {
-              card: cardElement,
-              billing_details: { name, email }
-            }
-          })
-
-          if (result.error) {
-            setProcessingStatus('failed')
-            setError(result.error.message || 'Card confirmation failed')
-            return
-          }
-
-          try {
-            const subscriptionResult = await createSubscriptionAfterSetup({
-              setupIntentId,
-              email,
-              name,
-              frequency: donationType === 'monthly' ? 'monthly' : 'yearly',
-              amount: finalAmount,
-              coverFees,
-              feesCovered
-            })
-
-            if (!subscriptionResult.success) {
-              throw new Error(subscriptionResult.error || 'Failed to create subscription')
-            }
-
-            // Wait for order via Pusher
-            setupPusherListenerRecurring(
-              subscriptionResult,
-              processingStatus,
-              setError,
-              setProcessingStatus,
-              setLoading
-            )
-          } catch (error) {
-            console.error('Error in createSubscriptionAfterSetup:', error)
-            setError(error instanceof Error ? error.message : 'Failed to create subscription')
-            setProcessingStatus('failed')
-            setLoading(false)
-          }
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-      setProcessingStatus('failed')
-    }
-  }
+  // ── Submit ─────────────────────────────────────────────────────────────────
+  const { handleSubmit } = useDonationSubmit({ inputs, finalAmount, feesCovered, usingSavedCard, fullName })
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Donation Type Selection */}
-      <DonationTypeSelection
-        donationType={donationType}
-        setDonationType={setDonationType}
-        setSelectedPlan={setSelectedPlan}
-      />
-
-      {/* One-Time Amount */}
-      {donationType === 'once' && (
-        <OneTimeAmount
-          selectedPlan={selectedPlan}
-          setSelectedPlan={setSelectedPlan}
-          amount={amount}
-          setAmount={setAmount}
-        />
-      )}
-
-      {/* Monthly Plans */}
-      {donationType === 'monthly' && (
-        <MonthlyPlans
-          selectedPlan={selectedPlan}
-          setSelectedPlan={setSelectedPlan}
-          amount={amount}
-          setAmount={setAmount}
-        />
-      )}
-
-      {donationType === 'yearly' && (
-        <YearlyPlans
-          selectedPlan={selectedPlan}
-          setSelectedPlan={setSelectedPlan}
-          amount={amount}
-          setAmount={setAmount}
-        />
-      )}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-y-8">
+      {/* ── Donation type + amount ── */}
+      <Step3DonationAmountSection inputs={inputs} />
 
       {/* Contact Information */}
-      <ContactInformation email={email} name={name} setEmail={setEmail} setName={setName} />
+      <CheckoutStep3UserInfo name={fullName} setStep={setStep} />
 
-      <div className="dark:border-zinc-700 border-t border-neutral-200" />
-
-      {/* Cover Fees Switch */}
-      <Switch
-        checked={coverFees}
-        onChange={setCoverFees}
-        label="Cover processing fees"
-        description={`Add $${calculateFees(baseAmount).toFixed(2)} so 100% of your donation goes to the club`}
-      />
-
-      {donationType === 'once' && session?.status === 'unauthenticated' && (
-        <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg mb-6">
-          <p className="text-xs text-amber-400">
-            <Link href="/auth/login" className="font-semibold hover:text-amber-300 underline">
-              Sign in
-            </Link>{' '}
-            to save your card for faster donations
-          </p>
-        </div>
-      )}
-
-      {session?.status === 'authenticated' && savedCards && savedCards.length > 0 ? (
-        <SavedCardsSelection
-          savedCards={savedCards}
-          selectedCardId={selectedCardId}
-          setSelectedCardId={setSelectedCardId}
-          setUseNewCard={setUseNewCard}
-          useNewCard={useNewCard}
-        />
-      ) : (
-        donationType === 'once' &&
-        session?.status === 'authenticated' && (
-          <Switch
-            checked={saveCard}
-            onChange={setSaveCard}
-            label="Save card for future donations"
-            description="One-click checkout next time"
-          />
-        )
-      )}
-
-      {(donationType === 'monthly' || donationType === 'yearly') && (
-        <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg mb-6">
-          <p className="text-xs text-blue-400">
-            Your card will be saved and charged{' '}
-            {donationType === 'monthly'
-              ? `on the ${new Date().getDate()}th of each month`
-              : `every year on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`}
-            .
-          </p>
-        </div>
-      )}
-
-      {/* CardElement - Show if: not logged in, no saved cards, or using new card */}
-      {(session?.status === 'unauthenticated' || !savedCards || savedCards.length === 0 || useNewCard) && (
-        <div className="mb-8">
-          <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-3 uppercase tracking-wide">
-            {useNewCard ? 'New Card' : 'Card Information'}
-          </label>
-
-          <div className="border-2 border-neutral-200 dark:border-neutral-800 rounded-lg p-4 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-700 focus-within:border-sky-500 dark:focus-within:border-sky-500 transition-colors">
-            <CardElement
-              options={{
-                style: {
-                  base: {
-                    color: isDark ? '#fff' : '#1f2937',
-                    backgroundColor: 'transparent',
-                    fontSize: '16px',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                    '::placeholder': { color: isDark ? '#6b7280' : '#9ca3af' }
-                  },
-                  invalid: { color: '#ef4444' }
-                }
-              }}
+      {/* ── Payment ── */}
+      <fieldset className="border-0 p-0 m-0">
+        <legend className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-6">
+          Payment Method
+        </legend>
+        <div className="space-y-6">
+          {isAuthed && (
+            <SavedCardSelector
+              savedCards={savedCards}
+              selectedCardId={inputs?.selectedCardId}
+              useNewCard={inputs?.useNewCard}
+              onSelectCard={(id) => setForm({ selectedCardId: id })}
+              onUseNewCard={() => setForm({ useNewCard: true, selectedCardId: null })}
+              onUseSavedCard={() =>
+                setForm({ useNewCard: false, selectedCardId: savedCards[0]?.stripePaymentId ?? null, saveCard: false })
+              }
             />
-          </div>
+          )}
+
+          {(!isAuthed || savedCards.length === 0 || inputs?.useNewCard) && (
+            <CardElementField formName="donateCheckoutForm" />
+          )}
+
+          <SaveCardToggle formName="donateCheckoutForm" />
+          <CoverFeesToggle formName="donateCheckoutForm" processingFee={processingFee} />
         </div>
-      )}
+      </fieldset>
 
-      {/* Error Message */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm"
-        >
-          {error}
-        </motion.div>
-      )}
+      {/* ── Error ── */}
+      <FormError formName="donateCheckoutForm" />
 
-      {/* Submit Button */}
-      <SubmitButton
-        baseAmount={baseAmount}
-        calculateFees={calculateFees}
-        coverFees={coverFees}
-        donationType={donationType}
-        email={email}
-        loading={loading}
-        name={name}
-        selectedPlan={selectedPlan}
-      />
+      <SubmitButton formName="donateCheckoutForm" isValid={isValid} label={`Donate $${finalAmountDisplay}`} />
 
       <p className="text-xs dark:text-zinc-500 text-neutral-600 text-center">
         Secured by Stripe, Powered by{' '}
         <span>
-          <a className="sqysh-gradient hover:underline" href="https://sqysh.io?lead_source=bgcl">
+          <a className="sqysh-gradient hover:underline" href="https://sqysh.io?lead_source=ecf">
             Sqysh
           </a>
         </span>
@@ -429,5 +101,3 @@ function DonationForm() {
     </form>
   )
 }
-
-export default DonationForm

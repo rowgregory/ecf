@@ -2,7 +2,7 @@
 
 import Picture from '@/app/components/common/Picture'
 import { motion } from 'framer-motion'
-import { Heart, Users, Megaphone, BookOpen, Shield, Star, User, Zap, CheckCircle } from 'lucide-react'
+import { Heart, Users, Megaphone, BookOpen, Shield, Star, User, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 const containerVariants = {
@@ -72,267 +72,287 @@ const impact = [
 
 export default function HowToGetInvolved() {
   return (
-    <div className="w-full bg-bg-light dark:bg-bg-dark">
-      {/* Hero Section */}
-      <section className="w-full bg-white dark:bg-black py-16 sm:py-20 md:py-24 lg:py-30 px-3 sm:px-4 md:px-6">
-        <div className="max-w-container mx-auto">
-          <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <div className="flex flex-col items-center justify-center text-center">
-              <motion.h1
-                variants={itemVariants}
-                className="text-5xl sm:text-6xl font-black text-text-light dark:text-white leading-tight"
-              >
-                How to Get Involved
-              </motion.h1>
+    <div className="min-h-screen bg-bg-light dark:bg-bg-dark text-text-light dark:text-text-dark">
+      <div className="max-w-container mx-auto px-6 xs:px-10 sm:px-16 md:px-24 lg:px-32">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="py-16 xs:py-20 lg:py-24 border-b border-border-subtle dark:border-border-dark"
+        >
+          <p
+            aria-hidden="true"
+            className="font-mono text-[10px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-3"
+          >
+            {'// make an impact'}
+          </p>
+          <h1
+            className="font-mono font-bold text-text-light dark:text-text-dark leading-none mb-4"
+            style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)' }}
+          >
+            Get Involved
+          </h1>
+          <p className="font-mono text-[13px] xs:text-sm text-text-light/55 dark:text-text-dark/50 tracking-wide leading-relaxed max-w-md">
+            Every child deserves quality education.{' '}
+            <span className="text-primary-light dark:text-primary-dark">Help us expand our reach today.</span>
+          </p>
+        </motion.div>
 
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-base sm:text-lg md:text-2xl"
-              >
-                <span className="text-text-light/70 dark:text-white/70">
-                  <Link href="/">Home /</Link>
-                </span>
-                <span className="text-primary-light dark:text-primary-dark font-caveat italic text-2xl">
-                  How to Get Involved
-                </span>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Support & Impact Section */}
-      <section className="w-full py-12 sm:py-16 md:py-20 px-3 sm:px-4 md:px-6">
-        <div className="max-w-container mx-auto">
-          <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            {/* Split Hero */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center mb-20 md:mb-32">
-              {/* Left - Text */}
-              <motion.div variants={containerVariants} className="flex flex-col justify-center">
-                <motion.p
-                  variants={itemVariants}
-                  className="text-primary-light dark:text-primary-dark font-bold text-sm uppercase tracking-widest mb-4"
-                >
-                  Make an Impact
-                </motion.p>
-
-                <motion.h2
-                  variants={itemVariants}
-                  className="text-5xl sm:text-6xl md:text-7xl font-black text-text-light dark:text-text-dark mb-6 leading-tight"
-                >
-                  Support Education Comes First
-                </motion.h2>
-
-                <motion.p
-                  variants={itemVariants}
-                  className="text-text-light/80 dark:text-text-dark/80 text-lg sm:text-xl leading-relaxed mb-8"
-                >
-                  At ECF, we believe every child deserves quality education. We partner with nonprofit youth
-                  organizations to uphold high educational standards, boosting confidence, social-emotional well-being,
-                  and a love for learning—especially in reading and math.
-                </motion.p>
-
-                <motion.p
-                  variants={itemVariants}
-                  className="text-text-light/80 dark:text-text-dark/80 text-lg sm:text-xl leading-relaxed mb-10"
-                >
-                  With your support, we can expand our reach and impact more young lives across the United States.
-                </motion.p>
-
-                <motion.div variants={containerVariants} className="flex flex-col sm:flex-row gap-4 w-fit">
-                  <motion.a
-                    variants={itemVariants}
-                    href="/contact-us"
-                    className="inline-block bg-primary-light dark:bg-primary-dark text-black px-8 py-4 rounded-xl font-bold text-base hover:shadow-lg transition-all"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Donate Now
-                  </motion.a>
-                  <motion.a
-                    variants={itemVariants}
-                    href="#ways-to-give"
-                    className="inline-block border-2 border-text-light/30 dark:border-text-dark/30 text-text-light dark:text-text-dark px-8 py-4 rounded-xl font-bold text-base hover:border-primary-light dark:hover:border-primary-dark transition-all"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Learn More
-                  </motion.a>
-                </motion.div>
-              </motion.div>
-
-              {/* Right - Image */}
-              <motion.div
-                variants={itemVariants}
-                className="relative overflow-hidden rounded-2xl h-96 md:h-full min-h-96"
-                whileHover={{ y: -8 }}
-              >
-                <Picture
-                  src="/images/img-17.jpg"
-                  alt="Kids Learning"
-                  className="w-full h-full object-cover"
-                  priority={false}
-                  width={800}
-                  height={800}
-                />
-              </motion.div>
-            </div>
-
-            {/* Impact Stats Grid */}
-            <motion.div variants={containerVariants} className="mb-20 md:mb-32">
-              <motion.h2
-                variants={itemVariants}
-                className="text-4xl sm:text-5xl md:text-6xl font-black text-text-light dark:text-text-dark mb-16 text-center"
-              >
-                Your Impact
-              </motion.h2>
-
-              <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                {impact.map((item, idx) => {
-                  const Icon = item.icon
-                  return (
-                    <motion.div
-                      key={idx}
-                      variants={itemVariants}
-                      className="group bg-white/40 dark:bg-white/5 backdrop-blur-md border border-border-light/50 dark:border-border-dark/50 rounded-xl p-8 sm:p-10 hover:bg-white/60 dark:hover:bg-white/10 hover:border-primary-light/50 dark:hover:border-primary-dark/50 transition-all"
-                      whileHover={{ y: -6 }}
-                    >
-                      <Icon
-                        className="w-10 h-10 text-primary-light dark:text-primary-dark mb-4 group-hover:scale-110 transition-transform"
-                        strokeWidth={1.5}
-                      />
-                      <p className="text-text-light/90 dark:text-text-dark/90 text-lg leading-relaxed font-medium">
-                        {item.text}
-                      </p>
-                    </motion.div>
-                  )
-                })}
-              </motion.div>
-            </motion.div>
-
-            {/* Bold CTA */}
-            <motion.div
-              variants={itemVariants}
-              className="text-center py-16 md:py-20 px-8 sm:px-12 md:px-16 rounded-2xl bg-linear-to-br from-primary-light via-primary-light/80 to-primary-dark dark:from-primary-dark dark:via-primary-dark/80 dark:to-primary-light"
-            >
-              <motion.h3
-                variants={itemVariants}
-                className="text-4xl sm:text-5xl md:text-6xl font-black text-black mb-6"
-              >
-                Transform Lives Today
-              </motion.h3>
-
+        {/* Support & Impact */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="py-16 xs:py-20 border-b border-border-subtle dark:border-border-dark"
+        >
+          {/* Split — text + image */}
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center mb-20 md:mb-28">
+            <motion.div variants={containerVariants} className="flex flex-col">
               <motion.p
                 variants={itemVariants}
-                className="text-black/80 text-lg sm:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
+                className="font-mono text-[10px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-4"
               >
-                Every donation directly supports programs that empower young learners and create meaningful
-                opportunities for children across the nation.
+                {'// who we are'}
               </motion.p>
-
-              <motion.a
+              <motion.h2
                 variants={itemVariants}
-                href="/contact-us"
-                className="inline-block bg-black text-white px-10 py-5 rounded-xl font-bold text-lg hover:shadow-2xl transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="font-mono font-bold text-text-light dark:text-text-dark leading-tight mb-6"
+                style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)' }}
               >
-                Make Your Donation
-              </motion.a>
+                Support Education Comes First
+              </motion.h2>
+              <motion.p
+                variants={itemVariants}
+                className="font-mono text-sm text-text-light/60 dark:text-text-dark/55 leading-relaxed mb-4"
+              >
+                At ECF, we believe every child deserves quality education. We partner with nonprofit youth organizations
+                to uphold high educational standards, boosting confidence, social-emotional well-being, and a love for
+                learning — especially in reading and math.
+              </motion.p>
+              <motion.p
+                variants={itemVariants}
+                className="font-mono text-sm text-text-light/60 dark:text-text-dark/55 leading-relaxed mb-8"
+              >
+                With your support, we can expand our reach and impact more young lives across the United States.
+              </motion.p>
+              <motion.div variants={containerVariants} className="flex flex-col sm:flex-row gap-3">
+                <motion.a
+                  variants={itemVariants}
+                  href="/contact-us"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary-light dark:bg-primary-dark text-black font-mono text-sm font-medium hover:opacity-85 transition-opacity"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Donate Now →
+                </motion.a>
+                <motion.a
+                  variants={itemVariants}
+                  href="#ways-to-give"
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-border-subtle dark:border-border-dark text-text-light dark:text-text-dark font-mono text-sm font-medium hover:border-secondary-light dark:hover:border-secondary-dark transition-colors"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Learn More
+                </motion.a>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </div>
-      </section>
 
-      {/* Ways to Give */}
-      <section id="ways-to-give" className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 md:px-6">
-        <div className="max-w-container mx-auto">
-          <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <motion.div
+              variants={itemVariants}
+              className="relative overflow-hidden border border-border-subtle dark:border-border-dark h-80 md:h-96 lg:h-full min-h-80"
+            >
+              <Picture
+                src="/images/img-17.jpg"
+                alt="Kids Learning"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                priority={false}
+                width={800}
+                height={800}
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
+            </motion.div>
+          </div>
+
+          {/* Impact Stats */}
+          <motion.div variants={containerVariants}>
+            <motion.p
+              variants={itemVariants}
+              className="font-mono text-[10px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-3"
+            >
+              {'// your impact'}
+            </motion.p>
             <motion.h2
               variants={itemVariants}
-              className="text-3xl sm:text-4xl md:text-5xl font-black text-text-light dark:text-text-dark mb-12 md:mb-16 text-center"
+              className="font-mono font-bold text-text-light dark:text-text-dark leading-tight mb-12"
+              style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}
             >
-              Ways to Give
+              What Your Support Enables
             </motion.h2>
 
             <motion.div
               variants={containerVariants}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+              className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border-subtle dark:bg-border-dark"
             >
-              {waysToGive.map((way, idx) => {
-                const Icon = way.icon
+              {impact.map((item, idx) => {
+                const Icon = item.icon
                 return (
                   <motion.div
                     key={idx}
                     variants={itemVariants}
-                    className="bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-border-light dark:border-border-dark rounded-2xl p-8 hover:bg-white/70 dark:hover:bg-white/10 transition-all"
-                    whileHover={{ y: -4 }}
+                    className="group bg-bg-light dark:bg-bg-dark p-8 sm:p-10 hover:bg-accent dark:hover:bg-accent-dark transition-colors duration-150"
                   >
-                    <Icon className="w-12 h-12 text-primary-light dark:text-primary-dark mb-4" strokeWidth={1.5} />
-                    <h3 className="text-xl font-bold text-text-light dark:text-text-dark mb-3">{way.title}</h3>
-                    <p className="text-text-light/70 dark:text-text-dark/70 text-sm leading-relaxed">
-                      {way.description}
+                    <Icon className="w-8 h-8 text-primary-light dark:text-primary-dark mb-4" strokeWidth={1.5} />
+                    <p className="font-mono text-sm text-text-light/70 dark:text-text-dark/65 leading-relaxed">
+                      {item.text}
                     </p>
                   </motion.div>
                 )
               })}
             </motion.div>
-
-            <motion.div variants={itemVariants} className="text-center mt-12 md:mt-16">
-              <motion.a
-                href="/contact"
-                className="inline-block bg-primary-light dark:bg-primary-dark text-black px-8 py-4 rounded-full font-bold text-base hover:shadow-lg transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Contact Us to Get Involved
-              </motion.a>
-            </motion.div>
           </motion.div>
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Ways to Involve */}
-      <section className="py-12 sm:py-16 md:py-20 px-3 sm:px-4 md:px-6 bg-white/30 dark:bg-white/5">
-        <div className="max-w-container mx-auto">
-          <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <motion.h2
-              variants={itemVariants}
-              className="text-3xl sm:text-4xl md:text-5xl font-black text-text-light dark:text-text-dark mb-12 md:mb-16 text-center"
+        {/* CTA banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="py-16 xs:py-20 border-b border-border-subtle dark:border-border-dark"
+        >
+          <div className="bg-primary-light dark:bg-primary-dark px-8 sm:px-12 md:px-16 py-12 md:py-16">
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-black/50 mb-3">
+              {'// transform lives'}
+            </p>
+            <h3
+              className="font-mono font-bold text-black leading-tight mb-4"
+              style={{ fontSize: 'clamp(1.75rem, 4vw, 3.5rem)' }}
             >
-              Ways to Get Involved
-            </motion.h2>
+              Transform Lives Today
+            </h3>
+            <p className="font-mono text-sm text-black/70 leading-relaxed max-w-xl mb-8">
+              Every donation directly supports programs that empower young learners and create meaningful opportunities
+              for children across the nation.
+            </p>
 
-            <motion.div variants={containerVariants} className="space-y-4 max-w-2xl mx-auto">
-              {waysToInvolve.map((way, idx) => (
+            <Link
+              href="/contact-us"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white font-mono text-sm font-medium hover:opacity-80 transition-opacity"
+            >
+              Make Your Donation →
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Ways to Give */}
+        <motion.div
+          id="ways-to-give"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="py-16 xs:py-20 border-b border-border-subtle dark:border-border-dark"
+        >
+          <motion.p
+            variants={itemVariants}
+            className="font-mono text-[10px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-3"
+          >
+            {'// ways to give'}
+          </motion.p>
+          <motion.h2
+            variants={itemVariants}
+            className="font-mono font-bold text-text-light dark:text-text-dark leading-tight mb-12"
+            style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}
+          >
+            Ways to Give
+          </motion.h2>
+
+          <motion.div
+            variants={containerVariants}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border-subtle dark:bg-border-dark mb-12"
+          >
+            {waysToGive.map((way, idx) => {
+              const Icon = way.icon
+              return (
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className="flex gap-4 items-start bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-border-light dark:border-border-dark rounded-xl p-6 sm:p-8 hover:bg-white/70 dark:hover:bg-white/10 transition-all"
-                  whileHover={{ x: 4 }}
+                  className="bg-bg-light dark:bg-bg-dark p-8 hover:bg-accent dark:hover:bg-accent-dark transition-colors duration-150"
                 >
-                  <CheckCircle
-                    className="w-6 h-6 text-primary-light dark:text-primary-dark shrink-0 mt-1"
-                    strokeWidth={1.5}
-                  />
-                  <p className="text-text-light/80 dark:text-text-dark/80 text-base sm:text-lg">{way}</p>
+                  <Icon className="w-8 h-8 text-primary-light dark:text-primary-dark mb-5" strokeWidth={1.5} />
+                  <h3 className="font-mono text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                    {way.title}
+                  </h3>
+                  <p className="font-mono text-xs text-text-light/55 dark:text-text-dark/50 leading-relaxed">
+                    {way.description}
+                  </p>
                 </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="text-center mt-12 md:mt-16">
-              <motion.a
-                href="/contact"
-                className="inline-block bg-primary-light dark:bg-primary-dark text-black px-8 py-4 rounded-full font-bold text-base hover:shadow-lg transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Contact Us to Get Involved
-              </motion.a>
-            </motion.div>
+              )
+            })}
           </motion.div>
-        </div>
-      </section>
+
+          <motion.div variants={itemVariants}>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-light dark:bg-primary-dark text-black font-mono text-sm font-medium hover:opacity-85 transition-opacity"
+            >
+              Contact Us to Get Involved →
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* Ways to Get Involved */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="py-16 xs:py-20 pb-24 xs:pb-32"
+        >
+          <motion.p
+            variants={itemVariants}
+            className="font-mono text-[10px] tracking-[0.2em] uppercase text-secondary-light dark:text-secondary-dark mb-3"
+          >
+            {'// get involved'}
+          </motion.p>
+          <motion.h2
+            variants={itemVariants}
+            className="font-mono font-bold text-text-light dark:text-text-dark leading-tight mb-12"
+            style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}
+          >
+            Ways to Get Involved
+          </motion.h2>
+
+          <motion.div
+            variants={containerVariants}
+            className="space-y-px bg-border-subtle dark:bg-border-dark max-w-2xl mb-12"
+          >
+            {waysToInvolve.map((way, idx) => (
+              <motion.div
+                key={idx}
+                variants={itemVariants}
+                className="flex gap-4 items-start bg-bg-light dark:bg-bg-dark px-6 py-5 hover:bg-accent dark:hover:bg-accent-dark transition-colors duration-150 group"
+              >
+                <span className="font-mono text-[10px] text-primary-light dark:text-primary-dark mt-1 tracking-widest shrink-0 select-none">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <p className="font-mono text-sm text-text-light/70 dark:text-text-dark/65 leading-relaxed">{way}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary-light dark:bg-primary-dark text-black font-mono text-sm font-medium hover:opacity-85 transition-opacity"
+            >
+              Contact Us to Get Involved →
+            </Link>
+          </motion.div>
+        </motion.div>
+      </div>
     </div>
   )
 }

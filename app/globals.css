@@ -19,6 +19,9 @@
   --color-text-light: #000000;
   --color-text-dark: #ffffff;
 
+  --color-border-subtle: #e8e8e8;
+
+  --breakpoint-xs: 480px;
   --breakpoint-1150: 1150px;
 
   --max-width-container: 1350px;
@@ -26,7 +29,6 @@
 
 @theme inline {
   --font-lato: var(--font-lato);
-  --font-kanit: var(--font-kanit);
   --font-kanit: var(--font-kanit);
 }
 

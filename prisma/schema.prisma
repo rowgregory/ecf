@@ -111,7 +111,7 @@ model Order {
   // Billing info
   billingAddress Json? // Store as JSON
   coverFees      Boolean @default(false)
-  feesCovered    Int     @default(0) // Amount in cents
+  feesCovered    Float   @default(0) // Amount in cents
   notes          String?
 
   // User info (nullable - guest checkout allowed)

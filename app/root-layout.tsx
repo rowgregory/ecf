@@ -10,6 +10,9 @@ import VideoLightbox from './components/modals/VideoLightbox'
 import Footer from './components/Footer'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
+import ContactDrawer from './components/drawers/ContactDrawer'
+import Toast from './components/common/Toast'
+import ContactSubmissionSuccessModal from './components/modals/ContactSubmissionSuccessModal'
 
 const stripe = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -22,6 +25,9 @@ export default function RootLayoutWrapper({ children }: { children: ReactNode })
     <Provider store={store}>
       <Elements stripe={stripe}>
         <VideoLightbox />
+        <ContactDrawer />
+        <ContactSubmissionSuccessModal />
+        <Toast />
         {show && <Header />}
         {children}
         {show && <Footer />}

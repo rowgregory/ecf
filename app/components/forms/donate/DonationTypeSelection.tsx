@@ -1,83 +1,56 @@
 import { FC } from 'react'
-
 export const DonationTypeSelection: FC<{
   donationType: string
   setDonationType: (donationType: 'once' | 'monthly' | 'yearly') => void
   setSelectedPlan: (selectedPlan: string) => void
 }> = ({ donationType, setDonationType, setSelectedPlan }) => {
+  const options: {
+    type: 'once' | 'monthly' | 'yearly'
+    plan: string
+    label: string
+    sub: string
+  }[] = [
+    { type: 'once', plan: 'once_friend', label: 'One-Time', sub: 'Single donation' },
+    { type: 'monthly', plan: 'monthly_supporter', label: 'Monthly', sub: 'Recurring support' },
+    { type: 'yearly', plan: 'yearly-3000', label: 'Yearly', sub: 'Annual subscription' }
+  ]
+
   return (
     <div className="grid sm:grid-cols-3 gap-2 mb-8">
-      <button
-        type="button"
-        onClick={() => {
-          setSelectedPlan('once_friend')
-          setDonationType('once')
-        }}
-        className={`p-3 rounded-lg border-2 transition-all text-center ${
-          donationType === 'once'
-            ? 'dark:border-sky-500 dark:bg-sky-500/10 border-sky-500 bg-sky-500/10'
-            : 'dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 border-neutral-200 bg-neutral-100 hover:border-neutral-300'
-        }`}
-      >
-        <p
-          className={`font-semibold text-sm ${donationType === 'once' ? 'dark:text-white text-neutral-900' : 'dark:text-zinc-300 text-neutral-700'}`}
-        >
-          One-Time
-        </p>
-        <p
-          className={`text-xs ${donationType === 'once' ? 'dark:text-zinc-400 text-neutral-600' : 'dark:text-zinc-400 text-neutral-500'}`}
-        >
-          Single donation
-        </p>
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          setSelectedPlan('monthly_supporter')
-          setDonationType('monthly')
-        }}
-        className={`p-3 rounded-lg border-2 transition-all text-center ${
-          donationType === 'monthly'
-            ? 'dark:border-sky-500 dark:bg-sky-500/10 border-sky-500 bg-sky-500/10'
-            : 'dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 border-neutral-200 bg-neutral-100 hover:border-neutral-300'
-        }`}
-      >
-        <p
-          className={`font-semibold text-sm ${donationType === 'monthly' ? 'dark:text-white text-neutral-900' : 'dark:text-zinc-300 text-neutral-700'}`}
-        >
-          Monthly
-        </p>
-        <p
-          className={`text-xs ${donationType === 'monthly' ? 'dark:text-zinc-400 text-neutral-600' : 'dark:text-zinc-400 text-neutral-500'}`}
-        >
-          Recurring support
-        </p>
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          setSelectedPlan('yearly-3000')
-          setDonationType('yearly')
-        }}
-        className={`p-3 rounded-lg border-2 transition-all text-center ${
-          donationType === 'yearly'
-            ? 'dark:border-sky-500 dark:bg-sky-500/10 border-sky-500 bg-sky-500/10'
-            : 'dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 border-neutral-200 bg-neutral-100 hover:border-neutral-300'
-        }`}
-      >
-        <p
-          className={`font-semibold text-sm ${donationType === 'yearly' ? 'dark:text-white text-neutral-900' : 'dark:text-zinc-300 text-neutral-700'}`}
-        >
-          Yearly
-        </p>
-        <p
-          className={`text-xs ${donationType === 'yearly' ? 'dark:text-zinc-400 text-neutral-600' : 'dark:text-zinc-400 text-neutral-500'}`}
-        >
-          Annual subscription
-        </p>
-      </button>
+      {options.map(({ type, plan, label, sub }) => {
+        const active = donationType === type
+        return (
+          <button
+            key={type}
+            type="button"
+            aria-pressed={active}
+            onClick={() => {
+              setSelectedPlan(plan)
+              setDonationType(type)
+            }}
+            className={`p-3 border text-center transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark ${
+              active
+                ? 'border-primary-light dark:border-primary-dark bg-primary-light/6 dark:bg-primary-dark/6'
+                : 'border-border-subtle dark:border-border-dark bg-transparent hover:border-text-light/20 dark:hover:border-text-dark/20'
+            }`}
+          >
+            <p
+              className={`font-mono text-sm font-bold tracking-wide ${
+                active ? 'text-text-light dark:text-text-dark' : 'text-text-light/60 dark:text-text-dark/50'
+              }`}
+            >
+              {label}
+            </p>
+            <p
+              className={`font-mono text-[11px] mt-0.5 tracking-wide ${
+                active ? 'text-text-light/50 dark:text-text-dark/45' : 'text-text-light/35 dark:text-text-dark/30'
+              }`}
+            >
+              {sub}
+            </p>
+          </button>
+        )
+      })}
     </div>
   )
 }

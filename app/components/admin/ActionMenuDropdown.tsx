@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { store, useUiSelector } from '@/app/lib/store/store'
 import { setCloseAdminActionMenu } from '@/app/lib/store/slices/uiSlice'
 import { useBodyScrollLock } from '@/app/lib/hooks/useBodyScrollLock'
-import Backdrop from '../common/Backdrop'
+import { Backdrop } from '../common/Backdrop'
 import { IActionItem } from '@/types/common'
 import { dropDownActionItems } from '@/app/lib/constants/dropdownActionItems'
 

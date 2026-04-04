@@ -5,64 +5,48 @@ const URL_REDIRECTS: Record<string, string> = {
   '/about-education-comes-first': '/about'
 }
 
-export async function proxy(request: { nextUrl: { pathname: string }; url: string | URL | undefined }) {
+type TProxy = {
+  nextUrl: { pathname: any }
+  url: string | URL | undefined
+  cookies: { get: (arg0: string) => { (): any; new (): any; value: any } }
+}
+
+export async function proxy(request: TProxy) {
   const { pathname } = request.nextUrl
   const session = await auth()
+  const role = session?.user?.role
 
-  // Handle URL redirects first (before any other logic)
+  // Handle URL redirects
   if (URL_REDIRECTS[pathname]) {
-    return NextResponse.redirect(
-      new URL(URL_REDIRECTS[pathname], request.url),
-      { status: 301 } // Permanent redirect for SEO
-    )
+    return NextResponse.redirect(new URL(URL_REDIRECTS[pathname], request.url), { status: 301 })
   }
 
-  // If authenticated and on login page, redirect to appropriate dashboard
-  if (pathname === '/auth/login' && session?.user) {
-    const { role } = session.user
+  if (pathname === '/auth/login' && role) {
+    const redirect = request.cookies.get('ecf_redirect')?.value
 
-    if (role === 'ADMIN' || role === 'SUPERUSER') {
-      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-    }
+    if (role === 'ADMIN' || role === 'SUPERUSER') return NextResponse.redirect(new URL('/admin/dashboard', request.url))
 
-    // SUPPORTER role
-    return NextResponse.redirect(new URL('/supporter/overview', request.url))
+    const response = NextResponse.redirect(new URL(redirect || '/member/portal', request.url))
+    response.cookies.delete('ecf_redirect')
+    return response
   }
 
-  // Protected routes - require authentication
-  const protectedRoutes = ['/supporter/', '/admin/']
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route))
+  // Protected routes
+  const isProtected = ['/member/', '/admin/'].some((r) => pathname.startsWith(r))
+  if (!isProtected) return NextResponse.next()
 
-  if (isProtectedRoute) {
-    // Redirect unauthenticated users to login
-    if (!session?.user) {
-      return NextResponse.redirect(new URL('/auth/login', request.url))
-    }
+  // Unauthenticated — send to login
+  if (!role) return NextResponse.redirect(new URL('/auth/login', request.url))
 
-    const { role } = session.user
+  // Admin routes
+  if (pathname.startsWith('/admin/')) {
+    if (role !== 'ADMIN' && role !== 'SUPERUSER') return NextResponse.redirect(new URL('/member/portal', request.url))
+    return NextResponse.next()
+  }
 
-    // Helper function to redirect to correct dashboard
-    const redirectToDashboard = (userRole: string) => {
-      if (userRole === 'ADMIN' || userRole === 'SUPERUSER') {
-        return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-      }
-      return NextResponse.redirect(new URL('/supporter/overview', request.url))
-    }
-
-    // ADMIN/SUPERUSER access control
-    if (pathname.startsWith('/admin/')) {
-      if (role !== 'ADMIN' && role !== 'SUPERUSER') {
-        return redirectToDashboard(role)
-      }
-      // Admin/Superuser can access admin routes - allow
-      return NextResponse.next()
-    }
-
-    // SUPPORTER access control - everyone can access /supporter/overview
-    if (pathname.startsWith('/supporter/')) {
-      // Allow all authenticated roles to access supporter routes
-      return NextResponse.next()
-    }
+  // Supporter routes — redirect admins away from entry point
+  if (pathname.startsWith('/member/')) {
+    return NextResponse.next()
   }
 
   return NextResponse.next()
@@ -70,9 +54,8 @@ export async function proxy(request: { nextUrl: { pathname: string }; url: strin
 
 export const config = {
   matcher: [
-    '/supporter/:path*',
+    '/member/:path*',
     '/admin/:path*',
-    '/program/:path*',
     '/auth/login',
 
     // Add old URL paths to the matcher so middleware checks them

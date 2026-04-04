@@ -12,19 +12,34 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center">
       <Hero />
       <MarqueeSponsors />
-      <div className="py-30 px-3 sm:px-4 md:px-6 w-full">
-        <div className="max-w-container mx-auto">
-          <div className="w-14 mx-auto">
+
+      {/* Mission statement */}
+      <section
+        aria-label="Our mission"
+        className="py-24 xs:py-30 px-6 xs:px-10 sm:px-16 md:px-24 lg:px-32 w-full border-b border-border-subtle dark:border-border-dark"
+      >
+        <div className="max-w-5xl mx-auto">
+          <div className="w-12 mb-8 xs:mb-10">
             <LogoIconLight />
             <LogoIconDark />
           </div>
-          <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[42px] text-center font-medium text-text-light dark:text-text-dark leading-tight sm:leading-snug">
-            Our mission is to provide access to quality out of school programs which support academic success, build
-            confidence, and strengthen mental, social, and emotional well-being. We aim to inspire a lifelong love of
-            learning as a core belief.
-          </p>
+          <div className="flex gap-6 xs:gap-8 items-start">
+            {/* Dot column */}
+            <div aria-hidden="true" className="flex flex-col gap-2 pt-1.5 shrink-0">
+              <div className="w-2 h-2 bg-primary-light dark:bg-primary-dark" />
+              <div className="w-2 h-2 bg-primary-light dark:bg-primary-dark opacity-50" />
+              <div className="w-2 h-2 bg-primary-light dark:bg-primary-dark opacity-20" />
+            </div>
+
+            <p className="font-mono text-base xs:text-lg sm:text-xl text-text-light/70 dark:text-text-dark/60 leading-relaxed tracking-wide">
+              Our mission is to provide access to quality out of school programs which support academic success, build
+              confidence, and strengthen mental, social, and emotional well-being. We aim to inspire a lifelong love of
+              learning as a core belief.
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
+
       <OutOfSchoolLearning />
       <ByTheNumbers />
       <RealStories />

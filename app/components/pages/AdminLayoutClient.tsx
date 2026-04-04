@@ -1,17 +1,19 @@
 'use client'
 
-import { FC, ReactNode } from 'react'
-import { motion } from 'framer-motion'
-import AdminSidebar from '../../admin/sidebar'
-import { Menu } from 'lucide-react'
-import { store, useUiSelector } from '@/app/lib/store/store'
-import { setCloseAdminSidebar, setToggleAdminSidebar } from '@/app/lib/store/slices/uiSlice'
 import { ActionMenuDropdown } from '../admin/ActionMenuDropdown'
 import ActionMenuButton from '../ui/buttons/ActionMenuButton'
 import { MobileMenuButton } from '../ui/buttons/MobileMenuButton'
 import LogoutButton from '../ui/buttons/LogoutButton'
+import { FC, ReactNode } from 'react'
+import { store, useUiSelector } from '@/app/lib/store/store'
+import { setCloseAdminSidebar, setToggleAdminSidebar } from '@/app/lib/store/slices/uiSlice'
+import { motion } from 'framer-motion'
+import { Menu } from 'lucide-react'
 
-export const AdminLayoutClient: FC<{ children: ReactNode }> = ({ children }) => {
+export const AdminLayoutClient: FC<{
+  children: ReactNode
+  sidebar: ReactNode
+}> = ({ children, sidebar }) => {
   const onClose = () => store.dispatch(setCloseAdminSidebar())
   const { adminSidebar } = useUiSelector()
 
@@ -22,7 +24,7 @@ export const AdminLayoutClient: FC<{ children: ReactNode }> = ({ children }) => 
       {/* Desktop Fixed Header */}
       <header className="hidden lg:block fixed top-0 left-64 right-0 dark:bg-neutral-950 dark:border-neutral-800 bg-white border-neutral-200 border-b py-2.5 px-6 z-30 h-15.25">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold dark:text-neutral-100 text-neutral-900 capitalize">Something</h1>
+          <h1 className="text-lg font-bold dark:text-neutral-100 text-neutral-900 capitalize">Admin</h1>
           <div className="flex items-center space-x-2 md:space-x-4 h-full">
             <ActionMenuButton />
             <MobileMenuButton />
@@ -42,10 +44,9 @@ export const AdminLayoutClient: FC<{ children: ReactNode }> = ({ children }) => 
             className="fixed inset-0 dark:bg-black/50 bg-black/30 z-40 lg:hidden"
           />
         )}
-        {/* Sidebar - Hidden on mobile, visible on desktop */}
-        <div className="hidden lg:block fixed left-0 top-0 h-screen w-64 z-20">
-          <AdminSidebar />
-        </div>
+
+        {/* Desktop Sidebar - Fixed */}
+        <div className="hidden lg:block fixed left-0 top-0 h-screen w-64 z-20">{sidebar}</div>
 
         {/* Mobile Sidebar */}
         <motion.div
@@ -54,7 +55,7 @@ export const AdminLayoutClient: FC<{ children: ReactNode }> = ({ children }) => 
           transition={{ duration: 0.3 }}
           className="fixed lg:hidden inset-y-0 left-0 z-50 w-64"
         >
-          <AdminSidebar />
+          {sidebar}
         </motion.div>
 
         {/* Main Content */}
@@ -69,7 +70,7 @@ export const AdminLayoutClient: FC<{ children: ReactNode }> = ({ children }) => 
             >
               <Menu className="w-6 h-6 dark:text-white text-neutral-900" />
             </motion.button>
-            <h1 className="text-lg font-bold dark:text-white text-neutral-900 capitalize">Something</h1>
+            <h1 className="text-lg font-bold dark:text-white text-neutral-900 capitalize">Admin</h1>
             <div className="w-10" />
           </div>
 

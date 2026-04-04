@@ -2,141 +2,122 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowUp } from 'lucide-react'
+import Link from 'next/link'
+import { fadeUpItem, staggerContainer } from '../lib/constants/motion'
 
 export default function Footer() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, easing: 'easeOut' }
-    }
-  }
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
   return (
-    <footer className="w-full pt-16 sm:pt-20 md:pt-24">
-      <div className="max-w-container mx-auto px-3 sm:px-4 md:px-6">
-        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-          {/* Main Heading */}
-          <motion.h2
-            variants={itemVariants}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-[140px] text-center font-black text-text-light dark:text-white mb-16 md:mb-20 py-8 md:py-12 border border-border-light dark:border-white/10 rounded-[5px]"
-          >
-            GET IN TOUCH
-          </motion.h2>
+    <footer className="w-full border-t border-border-subtle dark:border-border-dark">
+      {/* Upper footer */}
+      <div className="px-6 xs:px-10 sm:px-16 md:px-24 lg:px-32 pt-16 xs:pt-20 lg:pt-24 pb-12 xs:pb-16">
+        <div className="max-w-5xl mx-auto">
+          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {/* Big heading */}
+            <motion.h2
+              variants={fadeUpItem}
+              className="font-mono font-bold text-text-light dark:text-text-dark text-center leading-none mb-10 xs:mb-14 py-8 xs:py-10 border border-border-subtle dark:border-border-dark"
+              style={{ fontSize: 'clamp(2.5rem, 10vw, 9rem)' }}
+            >
+              GET IN TOUCH
+            </motion.h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 mb-16 md:mb-20">
-            {/* Left Content */}
-            <motion.div variants={containerVariants}>
-              <motion.p
-                variants={itemVariants}
-                className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 leading-relaxed text-text-light/80 dark:text-white/90"
-              >
-                Education Comes First 501(C)(3) Nonprofit Organization EIN 87-3478137
-              </motion.p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-12 xs:mb-16">
+              {/* Left */}
+              <motion.div variants={staggerContainer} className="flex flex-col gap-4 xs:gap-5">
+                <motion.p
+                  variants={fadeUpItem}
+                  className="font-mono text-[13px] xs:text-sm text-text-light/55 dark:text-text-dark/50 leading-relaxed tracking-wide"
+                >
+                  Education Comes First 501(C)(3) Nonprofit Organization EIN 87-3478137
+                </motion.p>
 
-              <motion.a
-                variants={itemVariants}
-                href="mailto:info@educationcomfirst.org"
-                className="text-lg sm:text-xl md:text-2xl font-semibold underline hover:text-primary-light dark:hover:text-primary-dark transition-colors text-text-light dark:text-white"
-                whileHover={{ x: 4 }}
-              >
-                info@educationcomfirst.org
-              </motion.a>
-            </motion.div>
+                <motion.a
+                  variants={fadeUpItem}
+                  href="mailto:info@educationcomfirst.org"
+                  className="font-mono text-sm xs:text-base font-bold text-text-light dark:text-text-dark hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-200 break-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark underline decoration-border-subtle dark:decoration-border-dark hover:decoration-primary-light dark:hover:decoration-primary-dark"
+                  whileHover={{ x: 2 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  info@educationcomfirst.org
+                </motion.a>
+              </motion.div>
 
-            {/* Right Links Grid */}
-            <motion.div variants={containerVariants} className="grid grid-cols-2 gap-6 md:gap-8">
-              {[
-                { label: 'Facebook', href: '#' },
-                { label: 'Partners', href: '#' },
-                { label: 'Donate', href: '#' }
-              ].map((link, idx) => {
-                return (
+              {/* Right links */}
+              <motion.div variants={staggerContainer} className="grid grid-cols-1 xs:grid-cols-3 gap-3">
+                {[
+                  { label: 'Facebook', href: '#' },
+                  { label: 'Partners', href: '#' },
+                  { label: 'Donate', href: '/donate' }
+                ].map((link) => (
                   <motion.a
-                    key={idx}
-                    variants={itemVariants}
+                    key={link.label}
+                    variants={fadeUpItem}
                     href={link.href}
-                    className="border border-border-light dark:border-white/10 hover:border-border-light/50 dark:hover:border-white/30 rounded-lg p-6 sm:p-8 flex items-center justify-between group transition-all duration-300"
-                    whileHover={{ y: -4 }}
+                    className="border border-border-subtle dark:border-border-dark hover:border-primary-light/40 dark:hover:border-primary-dark/40 px-4 py-5 xs:py-6 flex items-center justify-between gap-3 group transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark"
+                    whileHover={{ y: -3 }}
+                    transition={{ duration: 0.15 }}
                   >
-                    <span className="text-base sm:text-lg md:text-xl font-semibold group-hover:text-primary-light dark:group-hover:text-primary-dark transition-colors text-text-light dark:text-white">
+                    <span className="font-mono text-[11px] font-bold tracking-widests uppercase text-text-light/60 dark:text-text-dark/50 group-hover:text-primary-light dark:group-hover:text-primary-dark transition-colors duration-200">
                       {link.label}
                     </span>
-                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight
+                      size={12}
+                      aria-hidden="true"
+                      className="shrink-0 text-text-light/30 dark:text-text-dark/25 group-hover:text-primary-light dark:group-hover:text-primary-dark transition-colors duration-200"
+                    />
                   </motion.a>
-                )
-              })}
-            </motion.div>
-          </div>
+                ))}
+              </motion.div>
+            </div>
 
-          {/* Divider */}
-          <motion.div
-            variants={itemVariants}
-            className="h-px bg-linear-to-r from-border-light to-border-light dark:from-white/0 dark:via-white/20 dark:to-white/0 mb-12 md:mb-16"
-          />
-        </motion.div>
+            {/* Divider */}
+            <motion.div variants={fadeUpItem} className="h-px bg-border-subtle dark:bg-border-dark" />
+          </motion.div>
+        </div>
       </div>
 
-      {/* Bottom Footer */}
-      <motion.div
-        variants={containerVariants}
-        className="bg-bg-light dark:bg-bg-dark py-8 border-t border-border-light dark:border-border-dark"
-      >
-        <div className="max-w-container w-full mx-auto px-3 sm:px-4 md:px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <motion.div variants={itemVariants} className="text-sm sm:text-base text-text-light dark:text-text-dark/70">
+      {/* Bottom bar */}
+      <div className="border-t border-border-subtle dark:border-border-dark px-6 xs:px-10 sm:px-16 md:px-24 lg:px-32 py-5 xs:py-6">
+        <div className="max-w-5xl mx-auto flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4">
+          <div className="font-mono text-[10px] tracking-wide text-text-light/30 dark:text-text-dark/25">
             <p>
-              Copyright © 2026{' '}
-              <span className="text-primary-light dark:text-primary-dark font-semibold">Education Comes First</span>.
-              All rights reserved.
+              © 2026 <span className="text-primary-light dark:text-primary-dark">Education Comes First</span>. All
+              rights reserved.
             </p>
-            <p className="mt-2">
-              Built by <span className="text-primary-light dark:text-primary-dark font-semibold">Sqysh</span>
+            <p className="mt-1">
+              Built by <span className="sqysh-gradient font-semibold">Sqysh</span>
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants} className="flex gap-6 sm:gap-8">
-            <a
-              href="#"
-              className="text-sm sm:text-base text-text-light dark:text-text-dark/70 hover:text-text-light/80 dark:hover:text-text-dark transition-colors"
+          <div className="flex items-center gap-5 xs:gap-6">
+            <Link
+              href="/terms"
+              className="font-mono text-[10px] tracking-wide text-text-light/30 dark:text-text-dark/25 hover:text-text-light dark:hover:text-text-dark transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-light dark:focus-visible:outline-secondary-dark"
             >
-              Terms & Condition
-            </a>
-            <a
-              href="#"
-              className="text-sm sm:text-base text-text-light dark:text-text-dark/70 hover:text-text-light/80 dark:hover:text-text-dark transition-colors"
+              Terms & Conditions
+            </Link>
+            <Link
+              href="/privacy"
+              className="font-mono text-[10px] tracking-wide text-text-light/30 dark:text-text-dark/25 hover:text-text-light dark:hover:text-text-dark transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-light dark:focus-visible:outline-secondary-dark"
             >
               Privacy Policy
-            </a>
-          </motion.div>
+            </Link>
+          </div>
 
           <motion.button
-            variants={itemVariants}
             onClick={scrollToTop}
-            className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-light dark:bg-primary-dark text-black rounded-lg flex items-center justify-center transition-all duration-300 self-end sm:self-auto cursor-pointer"
-            whileHover={{ scale: 1.1, y: -4 }}
-            whileTap={{ scale: 0.95 }}
             aria-label="Scroll to top"
+            className="w-10 h-10 border border-primary-light dark:border-primary-dark bg-primary-light dark:bg-primary-dark text-accent-dark flex items-center justify-center transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark self-end xs:self-auto"
+            whileHover={{ y: -3 }}
+            whileTap={{ y: 0 }}
+            transition={{ duration: 0.15 }}
           >
-            <ArrowUp size={20} />
+            <ArrowUp size={14} aria-hidden="true" />
           </motion.button>
         </div>
-      </motion.div>
+      </div>
     </footer>
   )
 }

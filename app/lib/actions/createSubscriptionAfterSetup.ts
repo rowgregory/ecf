@@ -1,15 +1,12 @@
 'use server'
 
-import prisma from '@/prisma/client'
 import { createLog } from './createLog'
-import { createStripeCustomer } from './createStripeCustomer'
-import { savePaymentMethod } from './savePaymentMethod'
 import { stripe } from '../stripe'
 
 interface CreateSubscriptionParams {
   setupIntentId: string
   name: string
-  email?: string
+  email: string
   frequency: 'monthly' | 'yearly'
   amount: number // in cents
   coverFees?: boolean
@@ -26,7 +23,6 @@ export async function createSubscriptionAfterSetup({
   feesCovered
 }: CreateSubscriptionParams) {
   try {
-    // Get the confirmed setup intent
     const setupIntent = await stripe.setupIntents.retrieve(setupIntentId)
 
     if (setupIntent.status !== 'succeeded') {
@@ -35,83 +31,39 @@ export async function createSubscriptionAfterSetup({
 
     const customerId = setupIntent.customer as string
     const paymentMethodId = setupIntent.payment_method as string
-    const existingUserId = setupIntent.metadata?.userId
+    const userId = setupIntent.metadata?.userId
 
-    let userId = existingUserId && existingUserId !== 'guest' ? existingUserId : undefined
+    if (!userId) throw new Error('User ID not found in setup intent metadata')
 
-    // Auto-create account for recurring donations if no userId
-    if (!userId && email) {
-      const existingUser = await prisma.user.findUnique({
-        where: { email }
-      })
+    const interval = frequency === 'monthly' ? 'month' : 'year'
 
-      if (existingUser) {
-        userId = existingUser.id
-      } else {
-        const newUser = await prisma.user.create({
-          data: {
-            email,
-            firstName: name?.split(' ')[0] || '',
-            lastName: name?.split(' ')[1] || '',
-            role: 'SUPPORTER'
-          }
-        })
-
-        userId = newUser.id
-
-        // Create Stripe customer
-        await createStripeCustomer(newUser.id, newUser.email, name)
-
-        // Save the payment method to database
-        await savePaymentMethod(newUser.id, paymentMethodId, true)
-
-        await createLog('info', 'Auto-created account for recurring donor', {
-          userId: newUser.id,
-          email: newUser.email
-        })
-      }
-    }
-
-    // Create product for this recurring donation
     const product = await stripe.products.create({
-      name: `${frequency === 'monthly' ? 'Monthly' : 'Yearly'} Donation`,
-      description: `Recurring donation of $${(amount / 100).toFixed(2)}/${frequency === 'monthly' ? 'month' : 'year'}`,
-      metadata: {
-        userId: userId || 'guest',
-        donorName: setupIntent.metadata?.name || ''
-      }
+      name: `${interval === 'month' ? 'Monthly' : 'Yearly'} Recurring Donation`,
+      metadata: { type: 'RECURRING_DONATION' }
     })
 
-    // Create price for the subscription
     const price = await stripe.prices.create({
       product: product.id,
       unit_amount: amount,
       currency: 'usd',
-      recurring: {
-        interval: frequency === 'monthly' ? 'month' : 'year',
-        usage_type: 'licensed'
-      },
-      metadata: {
-        frequency
-      }
+      recurring: { interval, usage_type: 'licensed' },
+      metadata: { frequency }
     })
 
-    // Create subscription with the saved payment method
     const subscription = await stripe.subscriptions.create(
       {
         customer: customerId,
         items: [{ price: price.id }],
         default_payment_method: paymentMethodId,
-        payment_settings: {
-          save_default_payment_method: 'on_subscription'
-        },
+        payment_settings: { save_default_payment_method: 'on_subscription' },
         metadata: {
-          userId: userId || 'guest',
-          email: email || '',
-          name: name || '',
+          userId,
+          email,
+          name,
+          orderType: 'RECURRING_DONATION',
           frequency,
           coverFees: coverFees ? 'true' : 'false',
-          feesCovered: feesCovered.toString()
+          feesCovered: feesCovered?.toString() || '0'
         }
       },
       {
@@ -127,8 +79,8 @@ export async function createSubscriptionAfterSetup({
   } catch (error) {
     await createLog('error', 'Subscription creation error', {
       error: error instanceof Error ? error.message : 'Unknown error',
-      name,
-      email
+      email,
+      name
     })
 
     return {

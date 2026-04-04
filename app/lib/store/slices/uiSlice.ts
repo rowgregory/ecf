@@ -8,11 +8,13 @@ const uiInitialState = {
   notificationOpen: false,
   adminSidebar: false,
   adminActionMenu: false,
-  campaignDrawer: false,
   userDrawer: false,
   mobileNavigation: false,
   isLoading: false,
-  isDark: false
+  isDark: false,
+  contactDrawer: false,
+  contactSubmissionSuccessModal: false,
+  paymentMethodDrawer: false
 }
 
 const uiSlice = createSlice({
@@ -38,18 +40,17 @@ const uiSlice = createSlice({
     setToggleAdminSidebar: (state, { payload }) => {
       state.adminSidebar = !payload
     },
-
     setOpenAdminActionMenu: (state) => {
       state.adminActionMenu = true
     },
     setCloseAdminActionMenu: (state) => {
       state.adminActionMenu = false
     },
-    setOpenCampaignDrawer: (state) => {
-      state.campaignDrawer = true
+    setOpenContactDrawer: (state) => {
+      state.contactDrawer = true
     },
-    setCloseCampaignDrawer: (state) => {
-      state.campaignDrawer = false
+    setCloseContactDrawer: (state) => {
+      state.contactDrawer = false
     },
     setOpenUserDrawer: (state) => {
       state.userDrawer = true
@@ -71,6 +72,18 @@ const uiSlice = createSlice({
     },
     setIsDark: (state, { payload }) => {
       state.isDark = payload
+    },
+    setOpenContactSubmissionSuccessModal: (state) => {
+      state.contactSubmissionSuccessModal = true
+    },
+    setCloseContactSubmissionSuccessModal: (state) => {
+      state.contactSubmissionSuccessModal = false
+    },
+    setOpenPaymentMethodDrawer: (state) => {
+      state.paymentMethodDrawer = true
+    },
+    setClosePaymentMethodDrawer: (state) => {
+      state.paymentMethodDrawer = false
     }
   }
 })
@@ -85,13 +98,18 @@ export const {
   setOpenAdminSidebar,
   setCloseAdminActionMenu,
   setOpenAdminActionMenu,
-  setCloseCampaignDrawer,
-  setOpenCampaignDrawer,
+  setCloseContactDrawer,
+  setOpenContactDrawer,
   setCloseUserDrawer,
   setOpenUserDrawer,
   setToggleAdminSidebar,
   setCloseMobileNavigation,
   setOpenMobileNavigation,
   setIsLoading,
-  setIsNotLoading
+  setIsNotLoading,
+  setOpenContactSubmissionSuccessModal,
+  setCloseContactSubmissionSuccessModal,
+  setClosePaymentMethodDrawer,
+  setIsDark,
+  setOpenPaymentMethodDrawer
 } = uiSlice.actions

@@ -1,64 +1,62 @@
-import { AlertTriangle, Clock, Compass, Mail, Shield } from 'lucide-react'
+import { Shield, Clock, Mail, AlertTriangle, Lock, Settings } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
-const getAuthErrorMessage = (error: string) => {
+export type AuthErrorInfo = {
+  icon: LucideIcon
+  title: string
+  message: string
+}
+
+export const getAuthErrorMessage = (error: string): AuthErrorInfo => {
   switch (error) {
     case 'AccessDenied':
       return {
         icon: Shield,
-        title: 'Access Denied, Astronaut!',
-        message:
-          "Your clearance code isn't in our system, explorer! Only registered members of the Education Comes First can access Mission Control. Contact our crew if you need assistance."
+        title: 'Access denied',
+        message: "Your account isn't authorised to access this portal. Contact us if you think this is a mistake."
       }
 
     case 'Verification':
       return {
         icon: Clock,
-        title: 'Launch Window Expired!',
-        message:
-          'That magic link has drifted into deep space, astronaut! The verification has expired or already been used. Request a new transmission to continue your mission.'
+        title: 'Link expired',
+        message: 'This magic link has expired or has already been used. Request a new one below.'
       }
 
     case 'EmailSignin':
       return {
         icon: Mail,
-        title: 'Transmission Failed!',
-        message:
-          "Our signal couldn't reach your inbox, explorer! The email failed to send. Double-check your email address and request another transmission from ground control."
+        title: 'Email could not be sent',
+        message: "We weren't able to send a sign-in link to that address. Double-check it and try again."
       }
 
     case 'OAuthSignin':
     case 'OAuthCallback':
       return {
         icon: AlertTriangle,
-        title: 'Communication Array Offline!',
-        message:
-          "We're experiencing interference with the signin satellite, astronaut! There was trouble connecting to the authentication provider. Stand by and try again shortly."
+        title: 'Google sign-in failed',
+        message: 'There was a problem connecting with Google. Please try again or use a magic link instead.'
       }
 
     case 'SessionRequired':
       return {
         icon: Lock,
-        title: 'Crew Credentials Required!',
-        message:
-          'This sector is restricted to crew members only, explorer! You need to sign in before accessing this part of the station. Please authenticate to continue.'
+        title: 'Sign in required',
+        message: 'You need to be signed in to access this page. Please sign in to continue.'
       }
 
     case 'Configuration':
       return {
-        icon: Compass,
-        title: 'Navigation System Error!',
-        message:
-          'Our navigation systems are experiencing a glitch, astronaut! The technical crew at Education Comes First is working on repairs. Please try again later.'
+        icon: Settings,
+        title: 'Configuration error',
+        message: 'Something is misconfigured on our end. Our team has been notified — please try again later.'
       }
 
     default:
       return {
         icon: AlertTriangle,
-        title: 'Unknown Signal Detected!',
-        message:
-          "We've encountered an unexpected anomaly, explorer! Something went wrong during your mission. Please retry or contact ground control for assistance."
+        title: 'Something went wrong',
+        message: 'An unexpected error occurred. Please try again or contact us if the problem persists.'
       }
   }
 }
-
-export default getAuthErrorMessage
