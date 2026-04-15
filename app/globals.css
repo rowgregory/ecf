@@ -24,7 +24,7 @@
   --breakpoint-xs: 480px;
   --breakpoint-1150: 1150px;
 
-  --max-width-container: 1350px;
+  --max-width-container: 2000px;
 }
 
 @theme inline {

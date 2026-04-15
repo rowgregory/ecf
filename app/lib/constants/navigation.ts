@@ -1,6 +1,15 @@
 import { GitCommit, LucideIcon, Logs, User, LayoutDashboard, Gift, Mail, Users } from 'lucide-react'
 
-export const HIDDEN_PATHS = ['/member/', '/donate', '/admin', '/auth', '/terms', '/privacy', '/order-confirmation']
+export const HIDDEN_PATHS = [
+  '/member/',
+  '/donate',
+  '/admin',
+  '/auth',
+  '/terms',
+  '/privacy',
+  '/order-confirmation',
+  '/super'
+]
 
 const isStringInPath = (path: string, str: string) => path.includes(str)
 

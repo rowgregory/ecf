@@ -2,6 +2,7 @@
 export type Role = 'ADMIN' | 'SUPERUSER' | 'SUPPORTER'
 
 export interface TUser {
+  stripeCustomerId?: string | null
   emailVerified: unknown
   accounts?: any
   id: string

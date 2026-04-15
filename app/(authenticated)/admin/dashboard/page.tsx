@@ -1,31 +1,15 @@
-'use client'
+import DashboardClient from '@/app/components/pages/DashboardClient'
+import { getContactSubmissions } from '@/app/lib/actions/getContactSubmissions'
+import { getDonations } from '@/app/lib/actions/getDonations'
+import { getSessionRole } from '@/app/lib/actions/getSessionRole'
+import { getUsers } from '@/app/lib/actions/getUsers'
 
-import GoogleAnalyticsCard from '@/app/components/admin/GoogleAnalyticsCard'
-import GoogleSearchConsoleCard from '@/app/components/admin/GoogleSearchConsoleCard'
-import StripeCard from '@/app/components/admin/StripeCard'
-import { staggerContainer } from '@/app/lib/constants/motion'
-import { motion } from 'framer-motion'
-
-const DashboardPage = () => {
-  return (
-    <>
-      <div className="h-full dark:bg-neutral-950 bg-white p-6">
-        <div className="mx-auto">
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 4xl:grid-cols-5 gap-6 mb-6"
-          >
-            <GoogleAnalyticsCard />
-            <GoogleSearchConsoleCard />
-            <StripeCard />
-            {/* <HotjarCard /> */}
-          </motion.div>
-        </div>
-      </div>
-    </>
-  )
+export default async function DashboardPage() {
+  const [contactSubmissions, donations, users, role] = await Promise.all([
+    getContactSubmissions(),
+    getDonations(),
+    getUsers(),
+    getSessionRole()
+  ])
+  return <DashboardClient contactSubmissions={contactSubmissions} donations={donations} users={users} role={role} />
 }
-
-export default DashboardPage
