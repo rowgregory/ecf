@@ -6,6 +6,7 @@ import { createSetupIntentForSubscription } from '../actions/createSetupIntentFo
 import { createSubscriptionAfterSetup } from '../actions/createSubscriptionAfterSetup'
 import { usePaymentProcessor } from './usePaymentProcessor'
 import { setDonateCheckoutForm as setForm } from '../utils/donate.utils'
+import { logDonationError } from '../actions/log/logDonationError'
 
 export function useDonationSubmit({ inputs, finalAmount, feesCovered, usingSavedCard, fullName }: any) {
   const stripe = useStripe()
@@ -58,10 +59,23 @@ export function useDonationSubmit({ inputs, finalAmount, feesCovered, usingSaved
         })
       }
     } catch (err) {
-      setForm({
-        loading: false,
-        error: err instanceof Error ? err.message : 'Something went wrong. Please try again.',
-        processingStatus: 'failed'
+      // Browser console (immediate visibility during testing)
+      console.error('Donation submission failed:', err)
+
+      // Persist to DB (fire and forget — don't block the user)
+      logDonationError({
+        error: err instanceof Error ? err.name : 'UnknownError',
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        donationType: inputs?.donationType,
+        amount: finalAmount,
+        feesCovered,
+        usingSavedCard,
+        email: userEmail ?? undefined,
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+        url: typeof window !== 'undefined' ? window.location.href : undefined
+      }).catch(() => {
+        // Swallow logging failures — never let them surface to the user
       })
     }
   }
