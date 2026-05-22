@@ -9,24 +9,7 @@ import { CardElementField } from '../donate/CardElementField'
 import CustomSwitch from '../../ui/forms/CustomSwitch'
 import { PrimaryButton } from '../../ui/buttons/PrimaryButton'
 import { GhostButton } from '../../ui/buttons/GhostButton'
-
-const validatePaymentMethodForm = (inputs: any, setErrors: (newErrors: Record<string, string>) => void) => {
-  const newErrors: Record<string, string> = {}
-
-  // Card details (Stripe Element completeness)
-  if (!inputs?.cardComplete) {
-    newErrors.card = 'Please complete your card details'
-  }
-
-  // Cardholder name
-  if (!inputs?.cardholderName?.trim()) {
-    newErrors.cardholderName = 'Cardholder name is required'
-  }
-
-  setErrors(newErrors)
-
-  return Object.keys(newErrors).length === 0
-}
+import { validatePaymentMethodForm } from '@/app/lib/utils/form.utils'
 
 export function AddCardForm({ onClose }: { onClose: () => void }) {
   const stripe = useStripe()

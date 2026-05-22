@@ -1,12 +1,12 @@
 'use client'
 
 import { CardElement } from '@stripe/react-stripe-js'
-import { store } from '@/app/lib/store/store'
+import { RootState, store, useAppSelector } from '@/app/lib/store/store'
 import { FormName, setInputs } from '@/app/lib/store/slices/formSlice'
-import { useUiSelector, useFormSelector } from '@/app/lib/store/store'
+import { useFormSelector } from '@/app/lib/store/store'
 
 export function CardElementField({ formName }: { formName: FormName }) {
-  const { isDark } = useUiSelector()
+  const isDark = useAppSelector((state: RootState) => state.ui.isDark)
   const { forms } = useFormSelector()
   const stripeError = (forms?.[formName]?.inputs as { error?: string | null })?.error ?? null
   const hasError = !!stripeError
@@ -49,11 +49,12 @@ export function CardElementField({ formName }: { formName: FormName }) {
                 fontSize: '14px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 '::placeholder': {
-                  // 4.6:1 on white in light mode, 4.5:1 on accent-dark in dark mode
-                  color: isDark ? '#737373' : '#737373'
+                  color: isDark ? '#a3a3a3' : '#737373'
                 }
               },
-              invalid: { color: '#b91c1c' /* red-700 — passes on white */ }
+              invalid: {
+                color: isDark ? '#f87171' : '#b91c1c'
+              }
             }
           }}
         />

@@ -7,49 +7,10 @@ import Picture from '../ui/media/Picture'
 import Dropdown from '../ui/overlays/Dropdown'
 import { store } from '@/app/lib/store/store'
 import { setOpenContactDrawer } from '@/app/lib/store/slices/uiSlice'
+import { headerNavLinks } from '@/app/lib/constants/navigation.constants'
 
 const Header = () => {
   const pathname = usePathname()
-
-  const headerNavLinks = [
-    { textKey: 'Home', linkKey: '/', isActive: pathname === '/' },
-    {
-      textKey: 'Who We Are',
-      linkKey: '/who-we-are',
-      isActive: pathname.startsWith('/who-we-are'),
-      dropdown: [
-        { label: 'About ECF', linkKey: '/who-we-are/about', isActive: pathname === '/who-we-are/about' },
-        {
-          label: 'Executive Advocacy Committee',
-          linkKey: '/who-we-are/committee',
-          isActive: pathname === '/who-we-are/committee'
-        },
-        { label: 'History', linkKey: '/who-we-are/history', isActive: pathname === '/who-we-are/history' }
-      ]
-    },
-    {
-      textKey: 'Our Work',
-      linkKey: '/our-work',
-      isActive: pathname.startsWith('/our-work'),
-      dropdown: [
-        { label: 'Impact', linkKey: '/our-work/impact', isActive: pathname === '/our-work/impact' },
-        { label: 'Math', linkKey: '/our-work/math', isActive: pathname === '/our-work/math' },
-        { label: 'Success Stories', linkKey: '/our-work/success', isActive: pathname === '/our-work/success' },
-        { label: 'Reading', linkKey: '/our-work/reading', isActive: pathname === '/our-work/reading' }
-      ]
-    },
-    {
-      textKey: 'Advocates',
-      linkKey: '/advocates',
-      isActive: pathname === '/advocates',
-      dropdown: [
-        { label: 'Partners', linkKey: '/advocates/partners', isActive: pathname === '/advocates/impact' },
-        { label: 'Community', linkKey: '/advocates/community', isActive: pathname === '/advocates/community' }
-      ]
-    },
-    { textKey: 'Contact', linkKey: '/contact', isActive: pathname === '/contact' },
-    { textKey: 'Get Involved', linkKey: '/get-involved', isActive: pathname === '/get-involved' }
-  ]
 
   return (
     <header className="bg-accent dark:bg-black sticky top-0 z-20 py-3 sm:py-4 md:py-5 px-3 sm:px-4 md:px-6 border-b border-b-border-light dark:border-b-border-dark xl:before:absolute xl:before:left-68 xl:before:top-0 xl:before:w-px xl:before:h-[102.31px] xl:before:content-[''] xl:before:bg-border-light xl:after:absolute xl:after:right-70 xl:after:top-0 xl:after:w-px xl:after:h-[102.31px] xl:after:content-[''] xl:after:bg-border-light xl:dark:before:absolute xl:dark:before:left-68 xl:dark:before:top-0 xl:dark:before:w-px xl:dark:before:h-[102.31px] xl:dark:before:content-[''] xl:dark:before:bg-border-dark xl:dark:after:absolute xl:dark:after:right-70 xl:dark:after:top-0 xl:dark:after:w-px xl:dark:after:h-[102.31px] xl:dark:after:content-[''] xl:dark:after:bg-border-dark">
@@ -66,7 +27,7 @@ const Header = () => {
           </div>
         </Link>
         <nav className="hidden 1150:flex items-center gap-x-4 1150:gap-x-8">
-          {headerNavLinks.map((obj, i) =>
+          {headerNavLinks(pathname).map((obj, i) =>
             obj.dropdown ? (
               <Dropdown key={i} trigger={obj.textKey} items={obj.dropdown} isActive={obj.isActive} />
             ) : (

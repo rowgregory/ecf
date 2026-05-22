@@ -1,22 +1,11 @@
 'use client'
 
+import { MotionLink } from '@/app/components/ui/media/MotionLink'
 import Picture from '@/app/components/ui/media/Picture'
+import { containerVariants, itemVariants } from '@/app/lib/constants/motion.constants'
 import { motion } from 'framer-motion'
 import { Heart, Users, Megaphone, BookOpen, Shield, Star, User, Zap } from 'lucide-react'
 import Link from 'next/link'
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-  }
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, easing: 'easeOut' } }
-}
 
 const waysToGive = [
   {
@@ -138,16 +127,16 @@ export default function HowToGetInvolved() {
                 With your support, we can expand our reach and impact more young lives across the United States.
               </motion.p>
               <motion.div variants={containerVariants} className="flex flex-col sm:flex-row gap-3">
-                <motion.a
+                <MotionLink
                   variants={itemVariants}
-                  href="/contact-us"
+                  href="/donate"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary-light dark:bg-primary-dark text-black font-mono text-sm font-medium hover:opacity-85 transition-opacity"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   Donate Now →
-                </motion.a>
-                <motion.a
+                </MotionLink>
+                <MotionLink
                   variants={itemVariants}
                   href="#ways-to-give"
                   className="inline-flex items-center gap-2 px-6 py-3 border border-border-subtle dark:border-border-dark text-text-light dark:text-text-dark font-mono text-sm font-medium hover:border-secondary-light dark:hover:border-secondary-dark transition-colors"
@@ -155,7 +144,7 @@ export default function HowToGetInvolved() {
                   whileTap={{ scale: 0.98 }}
                 >
                   Learn More
-                </motion.a>
+                </MotionLink>
               </motion.div>
             </motion.div>
 
@@ -238,7 +227,7 @@ export default function HowToGetInvolved() {
             </p>
 
             <Link
-              href="/contact-us"
+              href="/donate"
               className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white font-mono text-sm font-medium hover:opacity-80 transition-opacity"
             >
               Make Your Donation →

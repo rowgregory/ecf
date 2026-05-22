@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { Scale, TrendingUp, Brain, Users } from 'lucide-react'
+import { MotionLink } from '../../ui/media/MotionLink'
+import { containerVariants, itemVariants } from '@/app/lib/constants/motion.constants'
 
 interface BenefitItem {
   icon: React.ReactNode
@@ -33,26 +35,6 @@ const benefits: BenefitItem[] = [
 ]
 
 export default function OutOfSchoolLearning() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, easing: 'easeOut' }
-    }
-  }
-
   return (
     <section
       className="w-full py-16 xs:py-20 lg:py-24 px-6 xs:px-10 sm:px-16 md:px-24 lg:px-32 border-b border-border-subtle dark:border-border-dark"
@@ -102,13 +84,13 @@ export default function OutOfSchoolLearning() {
               When we invest in after school learning, we are building a brighter future for our youth.
             </motion.p>
 
-            <motion.a
+            <MotionLink
               variants={itemVariants}
-              href="#"
-              className="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-widests uppercase text-text-light dark:text-text-dark border-b border-primary-light dark:border-primary-dark hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-200 w-fit pb-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark"
+              href="who-we-are/history"
+              className="inline-block items-center gap-2 font-mono text-[11px] font-bold tracking-widests uppercase text-text-light dark:text-text-dark border-b border-primary-light dark:border-primary-dark hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-200 w-fit pb-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark"
             >
               More about Education Comes First
-            </motion.a>
+            </MotionLink>
           </motion.div>
 
           {/* Right benefits grid */}

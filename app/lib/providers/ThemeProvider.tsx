@@ -10,6 +10,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const checkTheme = () => {
       const dark =
         document.documentElement.classList.contains('dark') || window.matchMedia('(prefers-color-scheme: dark)').matches
+
       store.dispatch(setIsDark(dark))
     }
 

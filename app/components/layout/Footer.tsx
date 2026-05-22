@@ -1,6 +1,7 @@
 'use client'
 
 import { fadeUpItem, staggerContainer } from '@/app/lib/constants/motion.constants'
+import { SOCIAL_MEDIA_DATA } from '@/app/lib/constants/shared.constants'
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowUp } from 'lucide-react'
 import Link from 'next/link'
@@ -46,13 +47,10 @@ export default function Footer() {
 
               {/* Right links */}
               <motion.div variants={staggerContainer} className="grid grid-cols-1 xs:grid-cols-3 gap-3">
-                {[
-                  { label: 'Facebook', href: '#' },
-                  { label: 'Partners', href: '#' },
-                  { label: 'Donate', href: '/donate' }
-                ].map((link) => (
+                {SOCIAL_MEDIA_DATA.map((link) => (
                   <motion.a
                     key={link.label}
+                    target="_blank"
                     variants={fadeUpItem}
                     href={link.href}
                     className="border border-border-subtle dark:border-border-dark hover:border-primary-light/40 dark:hover:border-primary-dark/40 px-4 py-5 xs:py-6 flex items-center justify-between gap-3 group transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light dark:focus-visible:outline-primary-dark"

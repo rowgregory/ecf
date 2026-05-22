@@ -116,3 +116,7 @@ body {
 .group:hover .sqysh-gradient {
   animation-duration: 1.5s;
 }
+
+ul li {
+  display: list-item;
+}

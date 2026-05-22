@@ -50,3 +50,5 @@ export const US_STATES = [
   'WI',
   'WY'
 ]
+
+export const SUBJECTS = ['Support', 'Partner', 'Sponsor', 'Other']

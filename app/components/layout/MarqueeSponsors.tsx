@@ -4,34 +4,7 @@ import { motion } from 'framer-motion'
 import LogoIconLight from '@/public/svg/LogoIconLight'
 import LogoIconDark from '@/public/svg/LogoIconDark'
 import Picture from '../ui/media/Picture'
-
-const sponsorImages = [
-  '/images/sponsor-1.png',
-  '/images/sponsor-2.png',
-  '/images/sponsor-3.png',
-  '/images/sponsor-4.png',
-  '/images/sponsor-5.png',
-  '/images/sponsor-6.png',
-  '/images/sponsor-7.png',
-  '/images/sponsor-8.png',
-  '/images/sponsor-9.png',
-  '/images/sponsor-10.png',
-  '/images/sponsor-11.png',
-  '/images/sponsor-12.png',
-  '/images/sponsor-13.png',
-  '/images/sponsor-14.png',
-  '/images/sponsor-15.png',
-  '/images/sponsor-16.png',
-  '/images/sponsor-17.png',
-  '/images/sponsor-18.png',
-  '/images/sponsor-19.png',
-  '/images/sponsor-20.png',
-  '/images/sponsor-21.png',
-  '/images/sponsor-22.png',
-  '/images/sponsor-23.png',
-  '/images/sponsor-24.png',
-  '/images/sponsor-25.png'
-]
+import { sponsorImages } from '@/app/lib/constants/shared.constants'
 
 interface MarqueeSponsorsProps {
   sponsors?: string[]
