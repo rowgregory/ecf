@@ -1,5 +1,6 @@
 'use client'
 
+import { FACEBOOK_URL } from '@/app/lib/constants/shared.constants'
 import { motion } from 'framer-motion'
 import {} from 'lucide-react'
 
@@ -29,7 +30,7 @@ function FacebookIcon({ size = 24, className = '', strokeWidth = 2 }: FacebookIc
 }
 
 export default function SocialSidebar() {
-  const socials = [{ icon: FacebookIcon, href: '#', label: 'Facebook' }]
+  const socials = [{ icon: FacebookIcon, href: FACEBOOK_URL, label: 'Facebook' }]
 
   return (
     <motion.div

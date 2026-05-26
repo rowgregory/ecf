@@ -10,11 +10,11 @@ export interface TUser {
   lastName: string | null
   phone: string | null
 
-  emailVerified: Date | null // ← was `unknown`
+  emailVerified: Date | null
   lastLoginAt: Date | null
 
   stripeCustomerId?: string | null
-  accounts?: unknown // ← prefer `unknown` over `any` if you must keep this loose
+  accounts?: unknown
 
   createdAt: Date
   updatedAt: Date
