@@ -50,7 +50,7 @@ export default function DashboardClient({ donations, users, contactSubmissions }
   )
 
   const todayRevenue = useMemo(() => todayDonations.reduce((s, d) => s + d.totalAmount, 0), [todayDonations])
-  console.log(filteredDonations)
+
   const todayDonationCount = todayDonations.length
 
   return (

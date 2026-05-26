@@ -59,7 +59,7 @@ export function Sidebar({ role, newMessages }: { role: string; newMessages: numb
         {role === 'SUPERUSER' && (
           <>
             <p className="text-[10px] uppercase tracking-wider font-medium text-neutral-400 dark:text-neutral-500 px-3 mb-2 mt-6">
-              Admin
+              Super User
             </p>
             <Link
               href="/super"

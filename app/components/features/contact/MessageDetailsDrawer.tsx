@@ -1,7 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { X, Reply, Archive, MailOpen, ExternalLink } from 'lucide-react'
+import { X, Archive, MailOpen, ExternalLink } from 'lucide-react'
 import { ContactSubmission, ContactReadStatus } from '@prisma/client'
 import { fullName, initials } from '@/app/lib/utils/user.utils'
 import Badge from '../../ui/feedback/Badge'
@@ -21,11 +21,7 @@ export default function MessageDetailDrawer({
 }) {
   const open = !!submission
 
-  const mailtoLink = submission
-    ? `mailto:${submission.email}?subject=${encodeURIComponent(
-        `Re: Your message to Education Comes First`
-      )}&body=${encodeURIComponent(`Hi ${submission.firstName},\n\nThank you for reaching out.\n\n`)}`
-    : '#'
+  console.log(submission)
 
   return (
     <AnimatePresence>
@@ -105,7 +101,10 @@ export default function MessageDetailDrawer({
               <div className="flex items-center gap-2">
                 {submission.status !== 'READ' && submission.status !== 'NEW' && (
                   <button
-                    onClick={() => onStatusChange('READ')}
+                    onClick={() => {
+                      onStatusChange('READ')
+                      onClose()
+                    }}
                     className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 border border-neutral-200 dark:border-border-dark text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-border-dark transition-colors cursor-pointer"
                   >
                     <MailOpen className="w-3.5 h-3.5" />
@@ -124,17 +123,6 @@ export default function MessageDetailDrawer({
                     Archive
                   </button>
                 )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href={mailtoLink}
-                  onClick={() => onStatusChange('READ')}
-                  className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 bg-neutral-900 dark:bg-primary-dark text-white dark:text-neutral-900 hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  <Reply className="w-4 h-4" />
-                  Reply
-                </a>
               </div>
             </div>
           </motion.div>

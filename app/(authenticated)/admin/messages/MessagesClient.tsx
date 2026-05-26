@@ -24,6 +24,7 @@ import Badge from '@/app/components/ui/feedback/Badge'
 import { statusVariant } from '@/app/lib/utils/contact.utils'
 import { StatusFilter, TypeFilter } from '@/types/entities/contact-submission'
 import MessageDetailDrawer from '@/app/components/features/contact/MessageDetailsDrawer'
+import { useRouter } from 'next/navigation'
 
 const PAGE_SIZE = 25
 
@@ -52,6 +53,7 @@ export default function MessagesClient({ submissions }: { submissions: ContactSu
   const [selected, setSelected] = useState<ContactSubmission | null>(null)
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   // Filter
   const filtered = useMemo(() => {
@@ -144,6 +146,7 @@ export default function MessagesClient({ submissions }: { submissions: ContactSu
             message: `${ids.length} message${ids.length !== 1 ? 's' : ''} ${label}`
           })
         )
+        router.refresh()
         setCheckedIds(new Set())
       } else {
         store.dispatch(
@@ -435,6 +438,7 @@ export default function MessagesClient({ submissions }: { submissions: ContactSu
           if (selected) {
             startTransition(async () => {
               await updateSubmissionStatus(selected.id, status)
+              router.refresh()
             })
           }
         }}

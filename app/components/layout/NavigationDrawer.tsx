@@ -3,7 +3,7 @@
 import { setCloseContactDrawer } from '@/app/lib/store/slices/uiSlice'
 import { store, useUiSelector } from '@/app/lib/store/store'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { X, MapPin, Mail, Phone, ArrowRight } from 'lucide-react'
+import { X, Mail, ArrowRight } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import LogoHorizontalDark from '@/public/svg/LogoHorizontalDark'

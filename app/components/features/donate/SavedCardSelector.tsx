@@ -30,13 +30,6 @@ export function SavedCardSelector({
 
   return (
     <div>
-      <p
-        id="saved-card-label"
-        className="block font-mono text-[10px] tracking-[0.14em] uppercase font-bold mb-3 text-text-light/80 dark:text-text-dark/80"
-      >
-        Payment Method
-      </p>
-
       {!useNewCard ? (
         <div className="space-y-2">
           <RadioGroup
