@@ -1,11 +1,11 @@
 import prisma from '@/prisma/client'
 import { User as NextAuthUser } from 'next-auth'
-import { createStripeCustomer } from '../actions/createStripeCustomer'
 import { createLog } from '../actions/createLog'
 import { Account } from 'next-auth'
 import { User, Account as PrismaAccount } from '@prisma/client'
+import { getOrCreateStripeCustomer } from '../actions/stripe/getOrCreateStripeCustomer'
 
-// Google OAuth Profile type - match NextAuth's Profile structure
+// Google OAuth Profile type — match NextAuth's Profile structure
 interface GoogleProfile {
   sub?: string | null
   name?: string | null
@@ -17,7 +17,6 @@ interface GoogleProfile {
   locale?: string | null
 }
 
-// User with accounts relation
 type UserWithAccounts = User & {
   accounts: PrismaAccount[]
 }
@@ -32,12 +31,21 @@ export async function handleGoogleCallback(
     include: { accounts: true }
   })
 
+  let dbUserId: string
+  let dbUserEmail: string
+  let dbUserFirstName: string | null
+  let dbUserLastName: string | null
+
   if (existingUser) {
     await linkGoogleAccount(existingUser, account)
     await updateUserFromProfile(existingUser, profile)
     user.id = existingUser.id
+
+    dbUserId = existingUser.id
+    dbUserEmail = existingUser.email
+    dbUserFirstName = existingUser.firstName
+    dbUserLastName = existingUser.lastName
   } else {
-    // Create new user with SUPPORTER role
     const newUser = await prisma.user.create({
       data: {
         email: user.email!,
@@ -48,19 +56,38 @@ export async function handleGoogleCallback(
     })
 
     await linkGoogleAccount(newUser, account)
-
-    await createStripeCustomer(newUser.id, newUser.email, `${newUser.firstName} ${newUser.lastName}`.trim())
-
     user.id = newUser.id
 
+    dbUserId = newUser.id
+    dbUserEmail = newUser.email
+    dbUserFirstName = newUser.firstName
+    dbUserLastName = newUser.lastName
+
     await logNewGoogleUser(user, account)
+  }
+
+  // Ensure Stripe customer linkage for every login — handles three cases:
+  //   - User already linked → returns existing ID (no-op)
+  //   - Guest customer exists under this email → links it back
+  //   - No customer anywhere → creates a fresh one
+  try {
+    await getOrCreateStripeCustomer({
+      userId: dbUserId,
+      email: dbUserEmail,
+      name: `${dbUserFirstName || ''} ${dbUserLastName || ''}`.trim()
+    })
+  } catch (error) {
+    await createLog('error', 'Stripe customer linkage failed during Google sign-in', {
+      userId: dbUserId,
+      email: dbUserEmail,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    })
   }
 
   return true
 }
 
 async function linkGoogleAccount(existingUser: User | UserWithAccounts, account: Account): Promise<void> {
-  // Handle case where accounts might not be loaded (new user)
   const hasGoogleAccount =
     'accounts' in existingUser
       ? existingUser.accounts?.some(
@@ -101,7 +128,7 @@ async function updateUserFromProfile(user: User, profile?: GoogleProfile): Promi
 }
 
 async function logNewGoogleUser(user: NextAuthUser, account: Account): Promise<void> {
-  await createLog('info', 'New Google user - will be handled in JWT callback', {
+  await createLog('info', 'New Google user', {
     location: ['googleProvider.ts'],
     provider: 'google',
     userEmail: user.email,

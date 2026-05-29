@@ -1,9 +1,9 @@
 'use server'
 
 import prisma from '@/prisma/client'
-import { auth } from '../auth'
+import { stripe } from '@/app/lib/stripe'
 import { createLog } from './createLog'
-import { stripe } from '../stripe'
+import { auth } from '../auth'
 
 export async function getSetupIntentClientSecret() {
   try {
@@ -13,36 +13,21 @@ export async function getSetupIntentClientSecret() {
       throw new Error('Unauthorized')
     }
 
-    // Get or create Stripe customer
-    let customerId: string
-
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { stripeCustomerId: true }
     })
 
-    if (user?.stripeCustomerId) {
-      customerId = user.stripeCustomerId
-    } else {
-      const customer = await stripe.customers.create({
-        email: session.user.email || undefined,
-        metadata: {
-          userId: session.user.id
-        }
-      })
-      customerId = customer.id
-
-      // Save to user
-      await prisma.user.update({
-        where: { id: session.user.id },
-        data: { stripeCustomerId: customerId }
-      })
+    if (!user?.stripeCustomerId) {
+      // Linkage was supposed to happen at login. If it didn't, the user record
+      // is out of sync — surface to support rather than silently healing here.
+      throw new Error('Account not linked to payments. Please sign out and back in.')
     }
 
-    // Create setup intent
     const setupIntent = await stripe.setupIntents.create({
-      customer: customerId,
-      payment_method_types: ['card']
+      customer: user.stripeCustomerId,
+      payment_method_types: ['card'],
+      usage: 'off_session'
     })
 
     return {

@@ -1,6 +1,6 @@
 import prisma from '@/prisma/client'
 import type { User } from 'next-auth'
-import { createStripeCustomer } from '../actions/createStripeCustomer'
+import { getOrCreateStripeCustomer } from '../actions/stripe/getOrCreateStripeCustomer'
 
 export async function handleEmailCallback(user: User) {
   let dbUser = await prisma.user.findUnique({
@@ -36,9 +36,19 @@ export async function handleEmailCallback(user: User) {
     })
   }
 
-  // Create Stripe customer if new user
-  if (!dbUser.stripeCustomerId) {
-    await createStripeCustomer(dbUser.id, dbUser.email, `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim())
+  // Ensure Stripe customer is linked. Handles three cases internally:
+  //   - Already linked → returns existing ID
+  //   - Guest customer exists under this email → links it back to the user
+  //   - No customer anywhere → creates a fresh one
+  // Wrapped in try/catch so a Stripe outage doesn't block sign-in.
+  try {
+    await getOrCreateStripeCustomer({
+      userId: dbUser.id,
+      email: dbUser.email,
+      name: `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim()
+    })
+  } catch (error) {
+    console.error('[handleEmailCallback] Stripe customer linkage failed', error)
   }
 
   return true
