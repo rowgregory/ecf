@@ -44,9 +44,11 @@ export interface ISupporterOverviewClient {
       frequency: string
       startDate: string
       status: string
+      paidAt: string | any
       nextDate: string | any
       stripeSubscriptionId: string
     }[]
+    nextRecurringDate?: string | any
     savedPayments?: {
       id: string
       brand: string
@@ -214,7 +216,7 @@ export default function MemberPortalClient({ name, data, savedCards }: ISupporte
             <Divider />
 
             {/* Recurring donations */}
-            <RecurringDonationsSection recurring={recurring} />
+            <RecurringDonationsSection recurring={recurring} nextBillingDate={data.nextRecurringDate} />
           </div>
 
           {/* ── Right column (sidebar) ────────────────────────────────────── */}
