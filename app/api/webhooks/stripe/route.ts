@@ -439,17 +439,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
           : (defaultPayment.payment.payment_intent as any)?.id || null
     }
 
-    // Check if order already exists (handles webhook retries)
-    const existingOrder = await prisma.order.findFirst({
-      where: {
-        stripeSubscriptionId: subscriptionId,
-        ...(paymentIntentId && { paymentIntentId })
-      }
-    })
-
-    if (existingOrder) return
-
-    // Get the subscription details
+    // Get the subscription details (needed for both create and update paths)
     const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId, {
       expand: ['default_payment_method']
     })
@@ -477,6 +467,55 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
         ? subscription.default_payment_method
         : subscription.default_payment_method?.id || null
 
+    // ── Idempotency / renewal handling ──
+    // stripeSubscriptionId is @unique, so there is one order row per
+    // subscription. Find it by subscription id alone.
+    const existingOrder = await prisma.order.findFirst({
+      where: { stripeSubscriptionId: subscriptionId }
+    })
+
+    if (existingOrder) {
+      // First-payment retry → already created, nothing to do.
+      if (isFirstPayment) return
+
+      // Renewal → update the existing order in place.
+      const updatedOrder = await prisma.order.update({
+        where: { id: existingOrder.id },
+        data: {
+          status: 'CONFIRMED',
+          totalAmount: amount,
+          paymentIntentId: paymentIntentId || existingOrder.paymentIntentId,
+          paymentMethodId: paymentMethodId || existingOrder.paymentMethodId,
+          paidAt: invoice.status_transitions?.paid_at
+            ? new Date(invoice.status_transitions.paid_at * 1000)
+            : new Date(),
+          nextBillingDate: getNextBillingDate(subscription)
+        }
+      })
+
+      await createLog('info', 'Recurring donation renewed', {
+        orderId: updatedOrder.id,
+        subscriptionId,
+        amount,
+        isFirstPayment: false
+      })
+
+      const channelId = `payment-${subscriptionId}`
+      await pusher.trigger(channelId, 'order-created', {
+        orderId: updatedOrder.id,
+        amount: updatedOrder.totalAmount,
+        status: updatedOrder.status,
+        type: updatedOrder.type,
+        frequency,
+        coverFees,
+        feesCovered,
+        createdAt: updatedOrder.createdAt
+      })
+
+      return
+    }
+
+    // ── No existing order → first payment, create it ──
     const order = await prisma.order.create({
       data: {
         type: 'RECURRING_DONATION',
@@ -498,12 +537,10 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
       }
     })
 
-    // ── Save the subscription's card to the user's saved payment methods ──
-    // On the first payment of a new subscription, Stripe has already attached
-    // the PaymentMethod to the customer (that's how subscriptions work). We
-    // just need to mirror it into our DB so the member portal shows it.
-    // On renewals, we skip — the card is already in our DB from the first run.
-    if (isFirstPayment && validUserId && paymentMethodId) {
+    // ── Mirror the subscription's card to the user's saved payment methods ──
+    // On the first payment Stripe has already attached the PaymentMethod to
+    // the customer. Just sync it into our DB so the member portal shows it.
+    if (validUserId && paymentMethodId) {
       const saveResult = await savePaymentMethod(
         validUserId,
         paymentMethodId,
@@ -522,17 +559,14 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
       }
     }
 
-    await createLog('info', `Recurring donation ${isFirstPayment ? 'created' : 'renewed'}`, {
+    await createLog('info', 'Recurring donation created', {
       orderId: order.id,
       subscriptionId,
       amount,
-      isFirstPayment
+      isFirstPayment: true
     })
 
-    // Only send confirmation email on first payment
-    if (isFirstPayment) {
-      await sendConfirmationEmail(order, 'RECURRING_DONATION', amount * 100)
-    }
+    await sendConfirmationEmail(order, 'RECURRING_DONATION', amount * 100)
 
     const channelId = `payment-${subscriptionId}`
     await pusher.trigger(channelId, 'order-created', {
