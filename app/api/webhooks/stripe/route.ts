@@ -457,7 +457,14 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     const coverFees = subscription.metadata?.coverFees === 'true'
     const feesCovered = parseFloat(subscription.metadata?.feesCovered || '0')
 
-    function getNextBillingDate(sub: any): Date {
+    // Next billing date = the end of the period this invoice paid for.
+    // This advances each cycle (anchor + N months), unlike billing_cycle_anchor
+    // which is fixed at the original start and never moves.
+    function getNextBillingDate(inv: any, sub: any): Date {
+      const periodEnd = (sub as any).current_period_end || inv.lines?.data?.[0]?.period?.end
+      if (periodEnd) return new Date(periodEnd * 1000)
+
+      // Fallback only if period end is somehow unavailable
       const f = sub.metadata?.frequency || 'monthly'
       const anchor = new Date(sub.billing_cycle_anchor * 1000)
       if (f === 'yearly') return new Date(anchor.setFullYear(anchor.getFullYear() + 1))
@@ -486,7 +493,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
         coverFees,
         feesCovered,
         paidAt: invoice.status_transitions?.paid_at ? new Date(invoice.status_transitions.paid_at * 1000) : new Date(),
-        nextBillingDate: getNextBillingDate(subscription),
+        nextBillingDate: getNextBillingDate(invoice, subscription),
         billingAddress: {
           addressLine1: subscription.metadata?.addressLine1 || '',
           addressLine2: subscription.metadata?.addressLine2 || '',
