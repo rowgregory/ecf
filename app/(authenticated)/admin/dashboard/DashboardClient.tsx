@@ -93,7 +93,7 @@ export default function DashboardClient({ contactSubmissions, donations, users }
 
               {newMessages > 0 && (
                 <Link
-                  href="/admin/contact"
+                  href="/admin/messages"
                   className="flex items-center gap-2 px-3 py-1.5 bg-secondary-light/10 dark:bg-secondary-dark/10 text-secondary-light dark:text-secondary-dark hover:bg-secondary-light/15 dark:hover:bg-secondary-dark/15 transition-colors"
                 >
                   <Mail className="w-3.5 h-3.5" />
@@ -318,7 +318,7 @@ export default function DashboardClient({ contactSubmissions, donations, users }
 
                 {contactSubmissions.length > 6 && (
                   <Link
-                    href="/admin/contact"
+                    href="/admin/messages"
                     className="block px-5 py-3 text-center text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-border-dark/30 transition-colors"
                   >
                     View all {contactSubmissions.length} submissions →
