@@ -16,12 +16,12 @@ import { formatDate } from '@/app/lib/utils/date.utils'
 import { fmtCurreny } from '@/app/lib/utils/currency.utils'
 
 type Props = {
+  contactSubmissions: IContactSubmission[]
   donations: IOrder[]
   users: TUser[]
-  contactSubmissions: IContactSubmission[]
 }
 
-export default function DashboardClient({ donations, users, contactSubmissions }: Props) {
+export default function DashboardClient({ contactSubmissions, donations, users }: Props) {
   const [donationFilter, setDonationFilter] = useState<'ALL' | 'RECURRING' | 'ONE_TIME'>('ALL')
 
   const paidDonations = useMemo(() => donations.filter((d) => d.status === 'CONFIRMED'), [donations])

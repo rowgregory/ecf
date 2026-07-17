@@ -2,7 +2,7 @@
 
 import prisma from '@/prisma/client'
 import { revalidateTag } from 'next/cache'
-import { createLog } from './createLog'
+import { createLog } from '../createLog'
 
 export async function deleteContactSubmission(id: string) {
   try {

@@ -8,13 +8,13 @@ import { resetForm } from '@/app/lib/store/slices/formSlice'
 import { store, useFormSelector } from '@/app/lib/store/store'
 import { setOpenContactSubmissionSuccessModal } from '@/app/lib/store/slices/uiSlice'
 import { validateContactSubmissionForm } from '@/app/lib/utils/form.utils'
-import { createContactSubmission } from '@/app/lib/actions/contact-submission/createContactSubmission'
 import { showToast } from '@/app/lib/store/slices/toastSlice'
 import { TextField } from '../../ui/forms/TextField'
 import { RadioGroup, SelectableCard } from '../../ui/forms/RadioGroup'
 import { SUBJECTS } from '@/app/lib/constants/form.constants'
 import { TextArea } from '../../ui/forms/TextArea'
 import { PrimaryButton } from '../../ui/buttons/PrimaryButton'
+import { createContactSubmission } from '@/app/lib/actions/public/contact-submission/createContactSubmission'
 
 const ContactForm = () => {
   const { handleInput, setErrors } = createFormActions('contactSubmissionForm', store.dispatch)
@@ -35,8 +35,7 @@ const ContactForm = () => {
         lastName: inputs?.lastName?.trim(),
         email: inputs?.email?.trim(),
         message: inputs?.message?.trim(),
-        type: inputs.type,
-        status: 'NEW'
+        type: inputs.type
       })
 
       store.dispatch(showToast({ message: 'Successfully sent message' }))

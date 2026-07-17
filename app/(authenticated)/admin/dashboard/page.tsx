@@ -1,4 +1,4 @@
-import { getContactSubmissions } from '@/app/lib/actions/contact-submission/getContactSubmissions'
+import { getContactSubmissions } from '@/app/lib/actions/admin/getContactSubmissions'
 import { getDonations } from '@/app/lib/actions/getDonations'
 import { getUsers } from '@/app/lib/actions/getUsers'
 import DashboardClient from './DashboardClient'

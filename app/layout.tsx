@@ -1,9 +1,9 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Caveat, Kanit, Lato, Lustria } from 'next/font/google'
 import './globals.css'
 import RootLayoutWrapper from './root-layout'
 import { SessionProvider } from 'next-auth/react'
-import { auth } from './lib/auth'
+import { siteMetadata, siteViewport } from './metadata'
 
 const lato = Lato({
   variable: '--font-lato',
@@ -29,23 +29,20 @@ const caveat = Caveat({
   weight: ['400', '700']
 })
 
-export const metadata: Metadata = {
-  title: 'Education Comes First',
-  description: 'Empowering youth through quality out-of-school programs'
-}
+export const metadata: Metadata = siteMetadata
+export const viewport: Viewport = siteViewport
 
 export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const session = await auth()
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`bg-accent dark:bg-accent-dark text-[#171717] dark:text-[#ededed] ${lato.variable} ${lustria.variable} ${kanit.variable} ${caveat.variable} antialiased`}
       >
-        <SessionProvider session={session}>
+        <SessionProvider>
           <RootLayoutWrapper>{children}</RootLayoutWrapper>
         </SessionProvider>
       </body>

@@ -1,7 +1,7 @@
 import { auth } from '@/app/lib/auth'
 import { redirect } from 'next/navigation'
 import MessagesClient from './MessagesClient'
-import { getContactSubmissions } from '@/app/lib/actions/contact-submission/getContactSubmissions'
+import { getContactSubmissions } from '@/app/lib/actions/admin/getContactSubmissions'
 
 export default async function MessagesPage() {
   const session = await auth()

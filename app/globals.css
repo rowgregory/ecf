@@ -28,20 +28,11 @@
 }
 
 @theme inline {
-  --font-lato: var(--font-lato);
-  --font-kanit: var(--font-kanit);
-}
-
-@utility font-caveat {
-  font-family: var(--font-caveat), cursive;
+  --font-mono: var(--font-mono);
 }
 
 body {
-  font-family:
-    var(--font-lato),
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Monaco, monospace;
 }
 
 @media (prefers-color-scheme: light) {
@@ -115,8 +106,4 @@ body {
 
 .group:hover .sqysh-gradient {
   animation-duration: 1.5s;
-}
-
-ul li {
-  display: list-item;
 }

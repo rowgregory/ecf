@@ -8,6 +8,7 @@ import { fadeUp } from '@/app/lib/constants/motion.constants'
 import { formatDate } from '@/app/lib/utils/date.utils'
 import { formatTime } from '@/app/lib/utils/time.utils'
 import { PrimaryButton } from '@/app/components/ui/buttons/PrimaryButton'
+import { capitalize } from '@/app/lib/utils/format.utils'
 
 const formatType = (type: string) =>
   type === 'ONE_TIME_DONATION'
@@ -193,10 +194,7 @@ export default function OrderConfirmationPage({ order }: { order: IOrder }) {
             <DetailRow label="Donation" value={`$${donationAmount.toFixed(2)}`} />
             {order.coverFees && <DetailRow label="Fees covered" value={`$${order.feesCovered.toFixed(2)}`} />}
             <DetailRow label="Total charged" value={`$${order.totalAmount.toFixed(2)}`} />
-            <DetailRow
-              label="Payment"
-              value={order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)}
-            />
+            <DetailRow label="Frequency" value={capitalize(order.recurringFrequency)} />
             {isRecurring && order.nextBillingDate && (
               <DetailRow label="Next billing" value={formatDate(order.nextBillingDate)} />
             )}

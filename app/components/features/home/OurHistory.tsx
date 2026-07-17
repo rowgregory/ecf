@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-import Picture from '../ui/media/Picture'
+import Picture from '../../ui/media/Picture'
 
 export default function OurHistory() {
   const containerVariants = {

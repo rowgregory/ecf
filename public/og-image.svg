@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#fcf7f2"/>
+
+  <!-- Subtle grid pattern in background -->
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#00a2d1" stroke-width="0.5" opacity="0.08"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Top bar accent — cyan stripe -->
+  <rect x="0" y="0" width="1200" height="8" fill="#00a2d1"/>
+
+  <!-- Eyebrow — "// education comes first" -->
+  <text
+    x="80"
+    y="150"
+    font-family="ui-monospace, 'SF Mono', Monaco, monospace"
+    font-size="20"
+    font-weight="700"
+    fill="#00a2d1"
+    letter-spacing="4"
+  >// EDUCATION COMES FIRST</text>
+
+  <!-- Main headline -->
+  <text
+    x="80"
+    y="260"
+    font-family="ui-monospace, 'SF Mono', Monaco, monospace"
+    font-size="76"
+    font-weight="800"
+    fill="#000000"
+    letter-spacing="-2"
+  >Empowering the</text>
+  <text
+    x="80"
+    y="345"
+    font-family="ui-monospace, 'SF Mono', Monaco, monospace"
+    font-size="76"
+    font-weight="800"
+    fill="#000000"
+    letter-spacing="-2"
+  >next generation</text>
+
+  <!-- Cyan accent bar under headline -->
+  <rect x="80" y="380" width="100" height="4" fill="#00a2d1"/>
+
+  <!-- Subtitle -->
+  <text
+    x="80"
+    y="450"
+    font-family="ui-monospace, 'SF Mono', Monaco, monospace"
+    font-size="28"
+    font-weight="500"
+    fill="#1a1a1a"
+    letter-spacing="-0.5"
+  >Supporting educational programs,</text>
+  <text
+    x="80"
+    y="490"
+    font-family="ui-monospace, 'SF Mono', Monaco, monospace"
+    font-size="28"
+    font-weight="500"
+    fill="#1a1a1a"
+    letter-spacing="-0.5"
+  >mentorship, and community initiatives.</text>
+
+  <!-- Yellow accent square in top right -->
+  <rect x="1020" y="120" width="100" height="100" fill="#fddd58"/>
+
+  <!-- E monogram in cyan square, matching favicon -->
+  <g transform="translate(1020, 250)">
+    <rect width="100" height="100" fill="#00a2d1"/>
+    <path
+      d="M 25 20 L 78 20 L 78 35 L 42 35 L 42 43 L 68 43 L 68 58 L 42 58 L 42 66 L 78 66 L 78 81 L 25 81 Z"
+      fill="#ffffff"
+    />
+  </g>
+
+  <!-- Footer strip -->
+  <rect x="0" y="570" width="1200" height="60" fill="#000000"/>
+  <text
+    x="80"
+    y="608"
+    font-family="ui-monospace, 'SF Mono', Monaco, monospace"
+    font-size="18"
+    font-weight="600"
+    fill="#ffffff"
+    letter-spacing="2"
+  >EDUCATIONCOMESFIRST.ORG</text>
+  <text
+    x="1120"
+    y="608"
+    font-family="ui-monospace, 'SF Mono', Monaco, monospace"
+    font-size="18"
+    font-weight="600"
+    fill="#00a2d1"
+    letter-spacing="2"
+    text-anchor="end"
+  >501(C)(3) NONPROFIT</text>
+</svg>

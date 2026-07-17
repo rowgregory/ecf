@@ -4,7 +4,6 @@ import { motion, useReducedMotion } from 'framer-motion'
 import Picture from '@/app/components/ui/media/Picture'
 import { MotionLink } from '@/app/components/ui/media/MotionLink'
 import LogoHorizontalDark from '@/public/svg/LogoHorizontalDark'
-import { useSession } from 'next-auth/react'
 import { store, useFormSelector } from '@/app/lib/store/store'
 import { createFormActions, setInputs } from '@/app/lib/store/slices/formSlice'
 import { useEffect, useState } from 'react'
@@ -15,11 +14,9 @@ import { CheckoutStep1 } from '@/app/components/features/donate/CheckoutStep1'
 import { CheckoutStep2 } from '@/app/components/features/donate/CheckoutStep2'
 import { CheckoutStep3 } from '@/app/components/features/donate/CheckoutStep3'
 
-export default function DonateCheckoutClient({ savedCards, name }: any) {
+export default function DonateCheckoutClient({ savedCards, name, isAuthed }: any) {
   const reduceMotion = useReducedMotion()
   // ── Store ───────────────────────────────────────────────────────────────────
-  const session = useSession()
-  const isAuthed = session.status === 'authenticated'
   const { forms } = useFormSelector()
   const { handleInput, setErrors } = createFormActions('donateCheckoutForm', store.dispatch)
 
@@ -28,18 +25,17 @@ export default function DonateCheckoutClient({ savedCards, name }: any) {
   const inputs = forms?.donateCheckoutForm?.inputs
   const errors = forms?.donateCheckoutForm?.errors
 
+  // ── Effects ──────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    store.dispatch(setInputs({ formName: 'donateCheckoutForm', data: { ...name } }))
+  }, [name])
+
   // ── UI state ─────────────────────────────────────────────────────────────────
   const [step, setStep] = useState(() => {
     if (!isAuthed) return 1
     if (hasUserInfo) return 3
     return 2
   })
-
-  // ── Effects ──────────────────────────────────────────────────────────────────
-  useEffect(() => {
-    store.dispatch(setInputs({ formName: 'donateCheckoutForm', data: { ...name } }))
-  }, [name])
-
   const handleStep2 = async () => {
     if (inputs?.firstName && inputs?.lastName) {
       await updateUserName({ firstName: inputs.firstName, lastName: inputs.lastName })
